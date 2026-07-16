@@ -1,0 +1,7 @@
+node_modules/
+server/uploads/
+database/*.db
+database/*.db-shm
+database/*.db-wal
+.env
+npm-debug.log*

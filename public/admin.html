@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECB | Admin Dashboard</title>
+  <meta name="robots" content="noindex">
+  <link rel="stylesheet" href="style/main.css">
+  <link rel="stylesheet" href="style/admin.css">
+</head>
+<body>
+
+<!-- ── Admin Nav ── -->
+<nav class="site-nav">
+  <div class="nav-inner">
+    <span class="nav-brand">🔧 RECB Admin</span>
+    <ul class="nav-links" id="nav-links">
+      <li><a href="index.html">← Portal</a></li>
+      <li><span style="color:var(--text-muted);font-size:0.85rem;">Logged in as <strong id="admin-username" style="color:var(--primary)">Admin</strong></span></li>
+      <li><button id="logout-btn" class="btn btn-outline btn-sm" style="cursor:pointer;">Logout</button></li>
+    </ul>
+    <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- ── Admin Layout ── -->
+<div class="admin-layout">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-title">Navigation</div>
+    <button class="sidebar-link active" data-section="section-dashboard">
+      <span class="icon">📊</span> Dashboard
+    </button>
+    <button class="sidebar-link" data-section="section-upload">
+      <span class="icon">⬆</span> Upload Note
+    </button>
+    <button class="sidebar-link" data-section="section-manage">
+      <span class="icon">📋</span> Manage Notes
+    </button>
+    <button class="sidebar-link" data-section="section-announcements">
+      <span class="icon">📢</span> Announcements
+    </button>
+    <button class="sidebar-link" data-section="section-account">
+      <span class="icon">Account</span> Account
+    </button>
+    <button class="sidebar-link" data-section="section-general-resources"><span class="icon">Resources</span> General Resources</button>
+    <button class="sidebar-link" data-section="section-feedback"><span class="icon">Feedback</span> Feedback</button>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="admin-main">
+
+    <!-- ── Dashboard Section ── -->
+    <div class="admin-section active" id="section-dashboard">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">📊 Dashboard</h2>
+
+      <div class="dash-grid">
+        <div class="dash-stat">
+          <div class="dash-stat-icon">📚</div>
+          <div class="dash-stat-label">Total Resources</div>
+          <div class="dash-stat-value" id="stat-total">–</div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon">1️⃣</div>
+          <div class="dash-stat-label">1st Year Notes</div>
+          <div class="dash-stat-value" id="stat-yr1">–</div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon">2️⃣</div>
+          <div class="dash-stat-label">2nd Year Notes</div>
+          <div class="dash-stat-value" id="stat-yr2">–</div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon">💻</div>
+          <div class="dash-stat-label">IT Resources</div>
+          <div class="dash-stat-value" id="stat-it">–</div>
+        </div>
+        <div class="dash-stat">
+          <div class="dash-stat-icon">🏗</div>
+          <div class="dash-stat-label">CE Resources</div>
+          <div class="dash-stat-value" id="stat-ce">–</div>
+        </div>
+      </div>
+
+      <div class="glass-card" style="padding:24px;max-width:600px;">
+        <h3 style="margin-bottom:12px;font-size:1rem;">⚡ Quick Actions</h3>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="document.querySelector('[data-section=section-upload]').click()">+ Upload Note</button>
+          <button class="btn btn-outline" onclick="document.querySelector('[data-section=section-manage]').click()">View All Notes</button>
+          <a href="notes.html" target="_blank" class="btn btn-outline">View Portal →</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Upload Section ── -->
+    <div class="admin-section" id="section-upload">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">⬆ Upload New Note</h2>
+
+      <form class="upload-form" id="upload-form" enctype="multipart/form-data">
+        <div class="form-title">📄 Note Details</div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label for="title">Title *</label>
+            <input type="text" id="title" name="title" placeholder="e.g. Mathematics-1 Chapter Notes" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="subject">Subject *</label>
+            <input type="text" id="subject" name="subject" placeholder="e.g. Mathematics-1" required>
+          </div>
+          <div class="form-group">
+            <label for="type">Type *</label>
+            <select id="type" name="type" required>
+              <option value="">Select type</option>
+              <option value="Notes">📖 Notes</option>
+              <option value="Syllabus">📋 Syllabus</option>
+              <option value="CT_Paper">📝 CT Paper</option>
+              <option value="Quantum">⚡ Quantum</option>
+              <option value="PYQ">Previous Year Paper (PYQ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="year">Year *</label>
+            <select id="year" name="year" required>
+              <option value="">Select year</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="branch">Branch *</label>
+            <select id="branch" name="branch" required>
+              <option value="">Select branch</option>
+              <option value="IT">IT – Information Technology</option>
+              <option value="CE">CE – Civil Engineering</option>
+              <option value="EE">EE – Electrical Engineering</option>
+              <option value="ME">ME – Mechanical Engineering</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label for="description">Description (optional)</label>
+            <textarea id="description" name="description" placeholder="Brief description of the notes..."></textarea>
+          </div>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-group full">
+          <label>Upload File (PDF, ZIP, DOCX – max 100MB)</label>
+          <div class="drop-zone" id="drop-zone">
+            <input type="file" id="file-input" name="file" accept=".pdf,.zip,.rar,.docx,.pptx">
+            <div class="drop-icon">📂</div>
+            <p><span>Click to browse</span> or drag & drop a file here</p>
+            <p style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">Supported: PDF, ZIP, RAR, DOCX, PPTX</p>
+            <div class="file-name" id="file-name-display"></div>
+          </div>
+        </div>
+
+        <div class="or-divider">or use a Google Drive link</div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label for="drive_link">Google Drive / External Link</label>
+            <input type="url" id="drive_link" name="drive_link" placeholder="https://drive.google.com/...">
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <button type="submit" class="btn btn-primary" id="upload-submit-btn" style="width:100%;justify-content:center;padding:13px;">
+            ⬆ Upload Note
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- ── Manage Notes Section ── -->
+    <div class="admin-section" id="section-manage">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">📋 Manage Notes</h2>
+
+      <div class="admin-table-wrap">
+        <div class="admin-table-header">
+          <h3>All Notes</h3>
+          <button class="btn btn-outline btn-sm" onclick="location.reload()">↻ Refresh</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Title</th>
+                <th>Subject</th>
+                <th>Year</th>
+                <th>Branch</th>
+                <th>Type</th>
+                <th>File/Link</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="notes-tbody">
+              <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Announcements Section ── -->
+    <div class="admin-section" id="section-announcements">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">📢 Manage Announcements</h2>
+
+      <!-- Add Announcement Form -->
+      <div class="glass-card" style="padding:24px;margin-bottom:28px;max-width:600px;">
+        <h3 style="margin-bottom:16px;font-size:1rem;">+ Add Announcement</h3>
+        <form id="ann-form" style="display:flex;flex-direction:column;gap:14px;">
+          <div class="form-group full">
+            <label for="ann-text">Announcement Text *</label>
+            <textarea id="ann-text" name="ann-text" placeholder="Enter announcement..." style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);padding:11px 14px;font-family:inherit;font-size:0.9rem;outline:none;min-height:80px;resize:vertical;" required></textarea>
+          </div>
+          <div class="form-group" style="flex:1 1 auto;">
+            <label for="ann-icon">Icon Emoji (optional)</label>
+            <input type="text" id="ann-icon" name="ann-icon" placeholder="📢" style="background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);padding:11px 14px;font-family:inherit;font-size:1.2rem;outline:none;max-width:100px;" maxlength="4">
+          </div>
+          <button type="submit" class="btn btn-primary" style="align-self:flex-start;">📢 Add Announcement</button>
+        </form>
+      </div>
+
+      <!-- Announcements List -->
+      <h3 style="font-size:1rem;margin-bottom:16px;">Active Announcements</h3>
+      <div class="ann-list" id="ann-list">
+        <p style="color:var(--text-muted)">Loading...</p>
+      </div>
+    </div>
+
+    <div class="admin-section" id="section-general-resources">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">General Resources</h2>
+      <form class="upload-form" id="general-resource-form" enctype="multipart/form-data">
+        <div class="form-title">Add a resource for all students</div>
+        <div class="form-row"><div class="form-group"><label for="resource-title">Title *</label><input id="resource-title" name="title" required></div><div class="form-group"><label for="resource-category">Category *</label><input id="resource-category" name="category" value="General" required></div></div>
+        <div class="form-row"><div class="form-group full"><label for="resource-description">Description</label><textarea id="resource-description" name="description"></textarea></div></div>
+        <div class="form-row"><div class="form-group"><label for="resource-file">Resource file</label><input id="resource-file" name="file" type="file" accept=".pdf,.zip,.rar,.docx,.pptx"></div><div class="form-group"><label for="resource-link">Or external link</label><input id="resource-link" name="drive_link" type="url" placeholder="https://..."></div></div>
+        <div class="form-row"><div class="form-group full"><label for="resource-cover-image">Cover image (optional)</label><input id="resource-cover-image" name="cover_image" type="file" accept="image/png,image/jpeg"><small style="color:var(--text-muted)">PNG or JPG image shown on the public resource card.</small></div></div>
+        <button class="btn btn-primary" type="submit">Add general resource</button>
+      </form>
+      <div class="ann-list" id="general-resources-list" style="margin-top:28px"></div>
+    </div>
+
+    <div class="admin-section" id="section-feedback">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">Student Feedback & Requests</h2>
+      <div class="ann-list" id="feedback-list"><p style="color:var(--text-muted)">Loading...</p></div>
+    </div>
+
+    <div class="admin-section" id="section-account">
+      <h2 style="margin-bottom:24px;font-size:1.5rem;">Administrator Account</h2>
+      <form class="upload-form" id="credentials-form" style="max-width:600px;">
+        <div class="form-title">Change username or password</div>
+        <p style="color:var(--text-muted);font-size:.9rem;margin-bottom:18px;">Enter your current password to save changes. New passwords must have at least 10 characters.</p>
+        <div class="form-row"><div class="form-group full"><label for="account-username">Username</label><input type="text" id="account-username" required minlength="3" maxlength="50" pattern="[A-Za-z0-9_.-]+" autocomplete="username"></div></div>
+        <div class="form-row"><div class="form-group full"><label for="current-password">Current password</label><input type="password" id="current-password" required autocomplete="current-password"></div></div>
+        <div class="form-row"><div class="form-group full"><label for="new-password">New password</label><input type="password" id="new-password" required minlength="10" autocomplete="new-password"></div></div>
+        <div class="form-row"><div class="form-group full"><label for="confirm-password">Confirm new password</label><input type="password" id="confirm-password" required minlength="10" autocomplete="new-password"></div></div>
+        <button type="submit" class="btn btn-primary">Save credentials</button>
+      </form>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="edit-note-modal" aria-hidden="true">
+  <section class="edit-modal" role="dialog" aria-modal="true" aria-labelledby="edit-note-title">
+    <div class="modal-header">
+      <h2 id="edit-note-title">Edit resource</h2>
+      <button class="modal-close" type="button" id="close-edit-modal" aria-label="Close">×</button>
+    </div>
+    <form id="edit-note-form" class="edit-note-form">
+      <input type="hidden" id="edit-note-id">
+      <div class="form-row"><div class="form-group full"><label for="edit-title">Title</label><input type="text" id="edit-title" required></div></div>
+      <div class="form-row">
+        <div class="form-group"><label for="edit-subject">Subject</label><input type="text" id="edit-subject" required></div>
+        <div class="form-group"><label for="edit-type">Type</label><select id="edit-type" required><option value="Notes">Notes</option><option value="Syllabus">Syllabus</option><option value="CT_Paper">CT Paper</option><option value="Quantum">Quantum</option><option value="PYQ">PYQ</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label for="edit-year">Year</label><select id="edit-year" required><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div>
+        <div class="form-group"><label for="edit-branch">Branch</label><select id="edit-branch" required><option value="IT">IT</option><option value="CE">CE</option><option value="EE">EE</option><option value="ME">ME</option></select></div>
+      </div>
+      <div class="form-group full"><label for="edit-drive-link">External/Drive link (optional)</label><input type="url" id="edit-drive-link" placeholder="https://drive.google.com/..."></div>
+      <div class="form-group full"><label for="edit-description">Description</label><textarea id="edit-description"></textarea></div>
+      <div class="modal-actions"><button class="btn btn-outline" type="button" id="cancel-edit-modal">Cancel</button><button class="btn btn-primary" type="submit">Save changes</button></div>
+    </form>
+  </section>
+</div>
+
+<script src="js/nav.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RECB | General Resources & Feedback</title>
+  <link rel="stylesheet" href="style/main.css">
+  <link rel="stylesheet" href="style/notes.css">
+  <link rel="stylesheet" href="style/resources.css">
+</head>
+<body>
+<header class="site-header"><div class="header-inner"><img src="/image/logo.png" alt="RECB Logo" class="header-logo"><div class="header-title"><h1>Rajkiya Engineering College, Bijnor</h1><p>Student Resource Portal</p></div><img src="/image/logo.png" alt="RECB Logo" class="header-logo"></div></header>
+<div class="marquee-strip"><div class="marquee-track" id="marquee-track"><span class="marquee-item">Loading announcements...</span></div></div>
+<nav class="site-nav"><div class="nav-inner"><span class="nav-brand">RECB Portal</span><ul class="nav-links" id="nav-links"><li><a href="index.html">Home</a></li><li><a href="notes.html">Study Materials</a></li><li><a href="notes.html?type=PYQ">PYQ</a></li><li><a href="resources.html" class="active">General Resources</a></li><li><a href="login.html" class="nav-btn">Admin Login</a></li></ul><div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div></div></nav>
+<main class="page-wrapper">
+  <div class="section-title" style="text-align:left"><h2>General Resources</h2><p>Useful resources available to every student, independent of branch and year.</p></div>
+  <div class="notes-grid" id="resources-grid"></div>
+  <section class="glass-card" style="max-width:720px;padding:28px;margin:56px auto 0;">
+    <div class="section-title" style="text-align:left;margin-bottom:20px"><h2>Request a Resource</h2><p>Tell the admin which notes, PYQs, or materials would help you.</p></div>
+    <form id="feedback-form" class="feedback-form">
+      <div class="feedback-field"><label for="feedback-name">Your name</label><input id="feedback-name" required maxlength="80" placeholder="Enter your name"></div>
+      <div class="feedback-field"><label for="feedback-message">What resource do you need?</label><textarea id="feedback-message" required maxlength="1000" placeholder="Example: Please upload DBMS PYQs for 2023, IT branch."></textarea></div>
+      <button class="btn btn-primary" type="submit">Send request</button>
+      <p id="feedback-status" style="margin-top:12px;color:var(--text-muted)" aria-live="polite"></p>
+    </form>
+  </section>
+</main>
+<script src="js/nav.js"></script>
+<script src="js/resources.js"></script>
+</body>
+</html>
