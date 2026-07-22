@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,9 @@
     .courses-hero {
       padding: 64px 24px 40px;
       text-align: center;
-      background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.12) 0%, transparent 60%);
+      background: radial-gradient(ellipse at 50% 0%, rgba(249, 115, 22, 0.12) 0%, transparent 60%);
     }
+
     .courses-hero h1 {
       font-size: clamp(1.8rem, 4vw, 3rem);
       background: linear-gradient(135deg, #fff, var(--accent));
@@ -20,7 +22,12 @@
       background-clip: text;
       margin-bottom: 12px;
     }
-    .courses-hero p { color: var(--text-secondary); max-width: 520px; margin: 0 auto; }
+
+    .courses-hero p {
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto;
+    }
 
     .courses-grid {
       display: grid;
@@ -40,53 +47,91 @@
       display: flex;
       flex-direction: column;
     }
+
     .course-card:hover {
       border-color: var(--border-hover);
       transform: translateY(-6px);
-      box-shadow: 0 16px 48px rgba(249,115,22,0.2);
+      box-shadow: 0 16px 48px rgba(249, 115, 22, 0.2);
     }
 
     .course-card-top {
       padding: 32px 28px 24px;
-      background: linear-gradient(135deg, rgba(249,115,22,0.08), rgba(251,191,36,0.04));
+      background: linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(251, 191, 36, 0.04));
       display: flex;
       align-items: center;
       gap: 18px;
       border-bottom: 1px solid var(--border);
     }
+
     .course-emoji {
       font-size: 2.4rem;
-      width: 64px; height: 64px;
-      background: rgba(249,115,22,0.1);
-      border: 1px solid rgba(249,115,22,0.25);
+      width: 64px;
+      height: 64px;
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.25);
       border-radius: var(--radius-md);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       flex-shrink: 0;
     }
-    .course-code { font-size: 0.75rem; color: var(--primary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-    .course-name { font-size: 1.15rem; font-weight: 700; color: var(--text-primary); margin: 4px 0; }
-    .course-degree { font-size: 0.82rem; color: var(--text-muted); }
 
-    .course-card-body { padding: 24px 28px; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+    .course-code {
+      font-size: 0.75rem;
+      color: var(--primary);
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .course-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 4px 0;
+    }
+
+    .course-degree {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .course-card-body {
+      padding: 24px 28px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
 
     .course-detail {
       display: flex;
       justify-content: space-between;
       font-size: 0.85rem;
       padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.04);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
       color: var(--text-secondary);
     }
-    .course-detail:last-child { border-bottom: none; }
-    .course-detail strong { color: var(--text-primary); font-weight: 600; }
+
+    .course-detail:last-child {
+      border-bottom: none;
+    }
+
+    .course-detail strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
 
     .course-subjects {
-      display: flex; flex-wrap: wrap; gap: 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
       margin-top: 4px;
     }
+
     .subject-tag {
       padding: 4px 10px;
-      background: rgba(255,255,255,0.05);
+      background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--border);
       border-radius: 20px;
       font-size: 0.75rem;
@@ -98,209 +143,227 @@
       display: flex;
       gap: 10px;
     }
-    .course-card-footer .btn { flex: 1; justify-content: center; font-size: 0.85rem; }
+
+    .course-card-footer .btn {
+      flex: 1;
+      justify-content: center;
+      font-size: 0.85rem;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- ── Header ── -->
-<header class="site-header">
-  <div class="header-inner">
-    <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
-    <div class="header-title">
-      <h1>Rajkiya Engineering College, Bijnor</h1>
-      <p>Chandpur, Bijnor · Uttar Pradesh – 246725</p>
-    </div>
-    <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
-  </div>
-</header>
-
-<!-- ── Marquee ── -->
-<div class="marquee-strip">
-  <div class="marquee-track" id="marquee-track">
-    <span class="marquee-item">🔔 Loading announcements...</span>
-  </div>
-</div>
-
-<!-- ── Nav ── -->
-<nav class="site-nav">
-  <div class="nav-inner">
-    <span class="nav-brand">🏛 RECB Portal</span>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="courses.html" class="active">Courses</a></li>
-      <li><a href="notes.html">Study Materials</a></li>
-      <li><a href="notes.html?type=PYQ">PYQ</a></li>
-      <li><a href="resources.html">General Resources</a></li>
-      <li><a href="login.html" class="nav-btn">Admin Login</a></li>
-    </ul>
-    <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
-  </div>
-</nav>
-
-<!-- ── Hero ── -->
-<section class="courses-hero">
-  <div style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:20px;font-size:0.78rem;font-weight:700;color:var(--primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">🎓 Academic Programs</div>
-  <h1>B.Tech Courses Offered</h1>
-  <p>4-year undergraduate programs affiliated to AKTU, Lucknow</p>
-</section>
-
-<!-- ── Courses Grid ── -->
-<div class="courses-grid">
-
-  <!-- IT -->
-  <div class="course-card" id="course-it">
-    <div class="course-card-top">
-      <div class="course-emoji">💻</div>
-      <div>
-        <div class="course-code">B.Tech – IT</div>
-        <div class="course-name">Information Technology</div>
-        <div class="course-degree">Bachelor of Technology</div>
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
+      <div class="header-title">
+        <h1>Rajkiya Engineering College, Bijnor</h1>
+        <p>Chandpur, Bijnor · Uttar Pradesh – 246725</p>
       </div>
+      <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
     </div>
-    <div class="course-card-body">
-      <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
-      <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
-      <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
-      <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
-      <div>
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Key Subjects</p>
-        <div class="course-subjects">
-          <span class="subject-tag">Data Structures</span>
-          <span class="subject-tag">DBMS</span>
-          <span class="subject-tag">Web Tech</span>
-          <span class="subject-tag">OS</span>
-          <span class="subject-tag">Networks</span>
-          <span class="subject-tag">AI/ML</span>
-        </div>
-      </div>
-    </div>
-    <div class="course-card-footer">
-      <a href="notes.html?year=1&branch=IT" class="btn btn-primary" id="it-notes-btn">📚 IT Notes</a>
-      <a href="about.html" class="btn btn-outline" id="it-more-btn">Learn More</a>
+  </header>
+
+  <!-- ── Marquee ── -->
+  <div class="marquee-strip">
+    <div class="marquee-track" id="marquee-track">
+      <span class="marquee-item">🔔 Loading announcements...</span>
     </div>
   </div>
 
-  <!-- CE -->
-  <div class="course-card" id="course-ce">
-    <div class="course-card-top">
-      <div class="course-emoji">🏗</div>
-      <div>
-        <div class="course-code">B.Tech – CE</div>
-        <div class="course-name">Civil Engineering</div>
-        <div class="course-degree">Bachelor of Technology</div>
-      </div>
-    </div>
-    <div class="course-card-body">
-      <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
-      <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
-      <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
-      <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
-      <div>
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Key Subjects</p>
-        <div class="course-subjects">
-          <span class="subject-tag">Structural Analysis</span>
-          <span class="subject-tag">Surveying</span>
-          <span class="subject-tag">Fluid Mechanics</span>
-          <span class="subject-tag">Geotechnics</span>
-          <span class="subject-tag">RCC Design</span>
-        </div>
-      </div>
-    </div>
-    <div class="course-card-footer">
-      <a href="notes.html?year=1&branch=CE" class="btn btn-primary" id="ce-notes-btn">📚 CE Notes</a>
-      <a href="about.html" class="btn btn-outline" id="ce-more-btn">Learn More</a>
-    </div>
-  </div>
-
-  <!-- EE -->
-  <div class="course-card" id="course-ee">
-    <div class="course-card-top">
-      <div class="course-emoji">⚡</div>
-      <div>
-        <div class="course-code">B.Tech – EE</div>
-        <div class="course-name">Electrical Engineering</div>
-        <div class="course-degree">Bachelor of Technology</div>
-      </div>
-    </div>
-    <div class="course-card-body">
-      <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
-      <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
-      <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
-      <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
-      <div>
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Key Subjects</p>
-        <div class="course-subjects">
-          <span class="subject-tag">Power Systems</span>
-          <span class="subject-tag">Machines</span>
-          <span class="subject-tag">Control Systems</span>
-          <span class="subject-tag">Power Electronics</span>
-          <span class="subject-tag">Signals</span>
-        </div>
-      </div>
-    </div>
-    <div class="course-card-footer">
-      <a href="notes.html?year=1&branch=EE" class="btn btn-primary" id="ee-notes-btn">📚 EE Notes</a>
-      <a href="about.html" class="btn btn-outline" id="ee-more-btn">Learn More</a>
-    </div>
-  </div>
-
-  <!-- ME -->
-  <div class="course-card" id="course-me">
-    <div class="course-card-top">
-      <div class="course-emoji">⚙</div>
-      <div>
-        <div class="course-code">B.Tech – ME</div>
-        <div class="course-name">Mechanical Engineering</div>
-        <div class="course-degree">Bachelor of Technology</div>
-      </div>
-    </div>
-    <div class="course-card-body">
-      <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
-      <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
-      <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
-      <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
-      <div>
-        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Key Subjects</p>
-        <div class="course-subjects">
-          <span class="subject-tag">Thermodynamics</span>
-          <span class="subject-tag">Machine Design</span>
-          <span class="subject-tag">Manufacturing</span>
-          <span class="subject-tag">Fluid Mechanics</span>
-          <span class="subject-tag">CAD/CAM</span>
-        </div>
-      </div>
-    </div>
-    <div class="course-card-footer">
-      <a href="notes.html?year=1&branch=ME" class="btn btn-primary" id="me-notes-btn">📚 ME Notes</a>
-      <a href="about.html" class="btn btn-outline" id="me-more-btn">Learn More</a>
-    </div>
-  </div>
-
-</div>
-
-<!-- ── Footer ── -->
-<footer class="site-footer">
-  <div class="footer-grid">
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
+  <!-- ── Nav ── -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <span class="nav-brand">🏛 RECB Portal</span>
+      <ul class="nav-links" id="nav-links">
         <li><a href="index.html">Home</a></li>
-        <li><a href="notes.html">Study Materials</a></li>
         <li><a href="about.html">About</a></li>
+        <li><a href="courses.html" class="active">Courses</a></li>
+        <li><a href="notes.html">Study Materials</a></li>
+        <li><a href="notes.html?type=PYQ">PYQ</a></li>
+        <li><a href="resources.html">General Resources</a></li>
+        <li><a href="login.html" class="nav-btn">Admin Login</a></li>
       </ul>
+      <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
     </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <p>Near Eidgah, Dattyana Road,<br>Chandpur, Bijnor – 246725<br>📞 01345-221301</p>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 Rajkiya Engineering College Bijnor. All rights reserved.</span>
-  </div>
-</footer>
+  </nav>
 
-<script src="js/nav.js"></script>
+  <!-- ── Hero ── -->
+  <section class="courses-hero">
+    <div
+      style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:20px;font-size:0.78rem;font-weight:700;color:var(--primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">
+      🎓 Academic Programs</div>
+    <h1>B.Tech Courses Offered</h1>
+    <p>4-year undergraduate programs affiliated to AKTU, Lucknow</p>
+  </section>
+
+  <!-- ── Courses Grid ── -->
+  <div class="courses-grid">
+
+    <!-- IT -->
+    <div class="course-card" id="course-it">
+      <div class="course-card-top">
+        <div class="course-emoji">💻</div>
+        <div>
+          <div class="course-code">B.Tech – IT</div>
+          <div class="course-name">Information Technology</div>
+          <div class="course-degree">Bachelor of Technology</div>
+        </div>
+      </div>
+      <div class="course-card-body">
+        <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
+        <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
+        <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
+        <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
+        <div>
+          <p
+            style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">
+            Key Subjects</p>
+          <div class="course-subjects">
+            <span class="subject-tag">Data Structures</span>
+            <span class="subject-tag">DBMS</span>
+            <span class="subject-tag">Web Tech</span>
+            <span class="subject-tag">OS</span>
+            <span class="subject-tag">Networks</span>
+            <span class="subject-tag">AI/ML</span>
+          </div>
+        </div>
+      </div>
+      <div class="course-card-footer">
+        <a href="notes.html?year=1&branch=IT" class="btn btn-primary" id="it-notes-btn">📚 IT Notes</a>
+        <a href="about.html" class="btn btn-outline" id="it-more-btn">Learn More</a>
+      </div>
+    </div>
+
+    <!-- CE -->
+    <div class="course-card" id="course-ce">
+      <div class="course-card-top">
+        <div class="course-emoji">🏗</div>
+        <div>
+          <div class="course-code">B.Tech – CE</div>
+          <div class="course-name">Civil Engineering</div>
+          <div class="course-degree">Bachelor of Technology</div>
+        </div>
+      </div>
+      <div class="course-card-body">
+        <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
+        <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
+        <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
+        <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
+        <div>
+          <p
+            style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">
+            Key Subjects</p>
+          <div class="course-subjects">
+            <span class="subject-tag">Structural Analysis</span>
+            <span class="subject-tag">Surveying</span>
+            <span class="subject-tag">Fluid Mechanics</span>
+            <span class="subject-tag">Geotechnics</span>
+            <span class="subject-tag">RCC Design</span>
+          </div>
+        </div>
+      </div>
+      <div class="course-card-footer">
+        <a href="notes.html?year=1&branch=CE" class="btn btn-primary" id="ce-notes-btn">📚 CE Notes</a>
+        <a href="about.html" class="btn btn-outline" id="ce-more-btn">Learn More</a>
+      </div>
+    </div>
+
+    <!-- EE -->
+    <div class="course-card" id="course-ee">
+      <div class="course-card-top">
+        <div class="course-emoji">⚡</div>
+        <div>
+          <div class="course-code">B.Tech – EE</div>
+          <div class="course-name">Electrical Engineering</div>
+          <div class="course-degree">Bachelor of Technology</div>
+        </div>
+      </div>
+      <div class="course-card-body">
+        <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
+        <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
+        <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
+        <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
+        <div>
+          <p
+            style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">
+            Key Subjects</p>
+          <div class="course-subjects">
+            <span class="subject-tag">Power Systems</span>
+            <span class="subject-tag">Machines</span>
+            <span class="subject-tag">Control Systems</span>
+            <span class="subject-tag">Power Electronics</span>
+            <span class="subject-tag">Signals</span>
+          </div>
+        </div>
+      </div>
+      <div class="course-card-footer">
+        <a href="notes.html?year=1&branch=EE" class="btn btn-primary" id="ee-notes-btn">📚 EE Notes</a>
+        <a href="about.html" class="btn btn-outline" id="ee-more-btn">Learn More</a>
+      </div>
+    </div>
+
+    <!-- ME -->
+    <div class="course-card" id="course-me">
+      <div class="course-card-top">
+        <div class="course-emoji">⚙</div>
+        <div>
+          <div class="course-code">B.Tech – ME</div>
+          <div class="course-name">Mechanical Engineering</div>
+          <div class="course-degree">Bachelor of Technology</div>
+        </div>
+      </div>
+      <div class="course-card-body">
+        <div class="course-detail"><span>Duration</span><strong>4 Years (8 Semesters)</strong></div>
+        <div class="course-detail"><span>Intake</span><strong>60 Students/Year</strong></div>
+        <div class="course-detail"><span>Affiliation</span><strong>AKTU, Lucknow</strong></div>
+        <div class="course-detail"><span>Eligibility</span><strong>10+2 PCM / JEE</strong></div>
+        <div>
+          <p
+            style="font-size:0.78rem;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">
+            Key Subjects</p>
+          <div class="course-subjects">
+            <span class="subject-tag">Thermodynamics</span>
+            <span class="subject-tag">Machine Design</span>
+            <span class="subject-tag">Manufacturing</span>
+            <span class="subject-tag">Fluid Mechanics</span>
+            <span class="subject-tag">CAD/CAM</span>
+          </div>
+        </div>
+      </div>
+      <div class="course-card-footer">
+        <a href="notes.html?year=1&branch=ME" class="btn btn-primary" id="me-notes-btn">📚 ME Notes</a>
+        <a href="about.html" class="btn btn-outline" id="me-more-btn">Learn More</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="notes.html">Study Materials</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>Near Eidgah, Dattyana Road,<br>Chandpur, Bijnor – 246725<br>📞 01345-221301</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Rajkiya Engineering College Bijnor. All rights reserved.</span>
+      <span>Developed with ❤ by Numan</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
 </body>
+
 </html>

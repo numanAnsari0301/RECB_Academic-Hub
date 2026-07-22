@@ -96,8 +96,8 @@
           </td>
           <td>
             <div class="table-actions">
-              <button class="btn btn-sm btn-outline" onclick="openEditNote(${note.id})">Edit</button>
-              <button class="btn btn-sm btn-danger" onclick="deleteNote(${note.id}, this)">🗑 Delete</button>
+              <button class="btn btn-sm btn-outline" onclick="openEditNote('${note.id}')">Edit</button>
+              <button class="btn btn-sm btn-danger" onclick="deleteNote('${note.id}', this)">🗑 Delete</button>
             </div>
           </td>
         </tr>
@@ -387,7 +387,7 @@
         <div class="ann-item">
           <span class="ann-item-icon">${a.icon || '📢'}</span>
           <span class="ann-item-text">${esc(a.text)}</span>
-          <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement(${a.id}, this)">Remove</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteAnnouncement('${a.id}', this)">Remove</button>
         </div>
       `).join('') || '<p style="color:var(--text-muted)">No announcements.</p>';
     } catch (_) {}
@@ -468,7 +468,7 @@
     if (!list) return;
     try {
       const json = await (await fetch('/api/resources')).json();
-      list.innerHTML = json.data.map(resource => `<div class="ann-item"><span class="ann-item-text"><strong>${esc(resource.title)}</strong> — ${esc(resource.category)}</span><button class="btn btn-sm btn-danger" onclick="deleteGeneralResource(${resource.id})">Remove</button></div>`).join('') || '<p style="color:var(--text-muted)">No general resources.</p>';
+      list.innerHTML = json.data.map(resource => `<div class="ann-item"><span class="ann-item-text"><strong>${esc(resource.title)}</strong> — ${esc(resource.category)}</span><button class="btn btn-sm btn-danger" onclick="deleteGeneralResource('${resource.id}')">Remove</button></div>`).join('') || '<p style="color:var(--text-muted)">No general resources.</p>';
     } catch (_) { list.innerHTML = '<p style="color:var(--text-muted)">Could not load resources.</p>'; }
   }
 
@@ -498,7 +498,7 @@
     if (!list) return;
     try {
       const json = await (await fetch('/api/feedback')).json();
-      list.innerHTML = json.data.map(item => `<div class="ann-item"><span class="ann-item-text"><strong>${esc(item.name)}</strong><br>${esc(item.message)}</span><button class="btn btn-sm btn-danger" onclick="deleteFeedback(${item.id})">Remove</button></div>`).join('') || '<p style="color:var(--text-muted)">No feedback yet.</p>';
+      list.innerHTML = json.data.map(item => `<div class="ann-item"><span class="ann-item-text"><strong>${esc(item.name)}</strong><br>${esc(item.message)}</span><button class="btn btn-sm btn-danger" onclick="deleteFeedback('${item.id}')">Remove</button></div>`).join('') || '<p style="color:var(--text-muted)">No feedback yet.</p>';
     } catch (_) { list.innerHTML = '<p style="color:var(--text-muted)">Could not load feedback.</p>'; }
   }
 

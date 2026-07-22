@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,8 +11,9 @@
     .about-hero {
       padding: 64px 24px 40px;
       text-align: center;
-      background: radial-gradient(ellipse at 50% 0%, rgba(249,115,22,0.12) 0%, transparent 60%);
+      background: radial-gradient(ellipse at 50% 0%, rgba(249, 115, 22, 0.12) 0%, transparent 60%);
     }
+
     .about-hero h1 {
       font-size: clamp(1.8rem, 4vw, 3rem);
       background: linear-gradient(135deg, #fff, var(--accent));
@@ -20,11 +22,25 @@
       background-clip: text;
       margin-bottom: 12px;
     }
-    .about-hero p { color: var(--text-secondary); max-width: 560px; margin: 0 auto; }
+
+    .about-hero p {
+      color: var(--text-secondary);
+      max-width: 560px;
+      margin: 0 auto;
+    }
 
     /* Content Cards */
-    .about-content { padding: 40px 24px 64px; }
-    .about-inner   { max-width: 900px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+    .about-content {
+      padding: 40px 24px 64px;
+    }
+
+    .about-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
 
     .info-card {
       background: var(--bg-card);
@@ -35,11 +51,18 @@
       overflow: hidden;
       transition: border-color var(--transition);
     }
-    .info-card:hover { border-color: var(--border-hover); }
+
+    .info-card:hover {
+      border-color: var(--border-hover);
+    }
+
     .info-card::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0; height: 3px;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: linear-gradient(90deg, var(--primary), var(--accent));
     }
 
@@ -49,25 +72,44 @@
       gap: 14px;
       margin-bottom: 20px;
     }
+
     .info-card-icon {
-      width: 50px; height: 50px;
-      background: rgba(249,115,22,0.1);
-      border: 1px solid rgba(249,115,22,0.2);
+      width: 50px;
+      height: 50px;
+      background: rgba(249, 115, 22, 0.1);
+      border: 1px solid rgba(249, 115, 22, 0.2);
       border-radius: var(--radius-sm);
-      display: flex; align-items: center; justify-content: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 1.5rem;
     }
-    .info-card h2 { font-size: 1.4rem; }
-    .info-card p  { color: var(--text-secondary); line-height: 1.8; font-size: 0.97rem; }
+
+    .info-card h2 {
+      font-size: 1.4rem;
+    }
+
+    .info-card p {
+      color: var(--text-secondary);
+      line-height: 1.8;
+      font-size: 0.97rem;
+    }
 
     /* Mission list */
-    .mission-list { list-style: none; display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+    .mission-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
     .mission-list li {
       display: flex;
       gap: 14px;
       align-items: flex-start;
       padding: 14px 18px;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255, 255, 255, 0.03);
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       font-size: 0.93rem;
@@ -75,17 +117,26 @@
       line-height: 1.6;
       transition: all var(--transition);
     }
+
     .mission-list li:hover {
-      border-color: rgba(249,115,22,0.25);
-      background: rgba(249,115,22,0.04);
+      border-color: rgba(249, 115, 22, 0.25);
+      background: rgba(249, 115, 22, 0.04);
       color: var(--text-primary);
     }
+
     .mission-bullet {
-      width: 24px; height: 24px; border-radius: 50%;
-      background: var(--primary); color: #fff;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.72rem; font-weight: 800;
-      flex-shrink: 0; margin-top: 1px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
     /* Stats row */
@@ -97,6 +148,7 @@
       max-width: 900px;
       margin: 0 auto;
     }
+
     .stat-box {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -105,7 +157,12 @@
       text-align: center;
       transition: all var(--transition);
     }
-    .stat-box:hover { border-color: var(--border-hover); transform: translateY(-3px); }
+
+    .stat-box:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-3px);
+    }
+
     .stat-box .num {
       font-size: 2.4rem;
       font-weight: 900;
@@ -113,159 +170,183 @@
       font-family: 'Outfit', sans-serif;
       display: block;
     }
-    .stat-box .lbl { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+
+    .stat-box .lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
   </style>
 </head>
+
 <body>
 
-<!-- ── Header ── -->
-<header class="site-header">
-  <div class="header-inner">
-    <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
-    <div class="header-title">
-      <h1>Rajkiya Engineering College, Bijnor</h1>
-      <p>Chandpur, Bijnor · Uttar Pradesh – 246725</p>
-    </div>
-    <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
-  </div>
-</header>
-
-<!-- ── Marquee ── -->
-<div class="marquee-strip">
-  <div class="marquee-track" id="marquee-track">
-    <span class="marquee-item">🔔 Loading announcements...</span>
-  </div>
-</div>
-
-<!-- ── Nav ── -->
-<nav class="site-nav">
-  <div class="nav-inner">
-    <span class="nav-brand">🏛 RECB Portal</span>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html" class="active">About</a></li>
-      <li><a href="courses.html">Courses</a></li>
-      <li><a href="notes.html">Study Materials</a></li>
-      <li><a href="notes.html?type=PYQ">PYQ</a></li>
-      <li><a href="resources.html">General Resources</a></li>
-      <li><a href="login.html" class="nav-btn">Admin Login</a></li>
-    </ul>
-    <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
-  </div>
-</nav>
-
-<!-- ── About Hero ── -->
-<section class="about-hero">
-  <div class="hero-badge" style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:20px;font-size:0.78rem;font-weight:700;color:var(--primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">🏛 About the College</div>
-  <h1>Rajkiya Engineering College</h1>
-  <p>Serving the community through quality technical education since 2010</p>
-</section>
-
-<!-- ── Stats ── -->
-<div class="stats-banner">
-  <div class="stat-box"><span class="num">2010</span><span class="lbl">Established</span></div>
-  <div class="stat-box"><span class="num">4</span><span class="lbl">B.Tech Branches</span></div>
-  <div class="stat-box"><span class="num">60+</span><span class="lbl">Faculty Members</span></div>
-  <div class="stat-box"><span class="num">1200+</span><span class="lbl">Students Enrolled</span></div>
-  <div class="stat-box"><span class="num">6</span><span class="lbl">Hostels</span></div>
-</div>
-
-<!-- ── About Content ── -->
-<section class="about-content">
-  <div class="about-inner">
-
-    <!-- About Card -->
-    <div class="info-card">
-      <div class="info-card-header">
-        <div class="info-card-icon">🏫</div>
-        <h2>About the College</h2>
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
+      <div class="header-title">
+        <h1>Rajkiya Engineering College, Bijnor</h1>
+        <p>Chandpur, Bijnor · Uttar Pradesh – 246725</p>
       </div>
-      <p>
-        Rajkiya Engineering College (formerly Dr. Bhim Rao Ambedkar Engineering College of Information Technology, Bijnor) was started by the Government of Uttar Pradesh, Department of Technical Education under the Special Component Plan (SCP) — a plan of the Union Government of India for the promotion of Technical Education in the socially and economically weaker sections of society.
-      </p>
-      <br>
-      <p>
-        Admissions to the College began in the year 2010–11 with three branches: Civil Engineering, Electrical Engineering and Information Technology, with an intake of 60 students in each branch. The college is affiliated to Dr. A.P.J. Abdul Kalam Technical University (AKTU), Lucknow.
-      </p>
+      <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
     </div>
+  </header>
 
-    <!-- Vision Card -->
-    <div class="info-card">
-      <div class="info-card-header">
-        <div class="info-card-icon">🔭</div>
-        <h2>Vision</h2>
-      </div>
-      <p>
-        "To be recognized as a premier institution in the field of Engineering and Technology, to provide industry-ready technocrats with distinctive competence and ethical standards for the development and social welfare of society."
-      </p>
+  <!-- ── Marquee ── -->
+  <div class="marquee-strip">
+    <div class="marquee-track" id="marquee-track">
+      <span class="marquee-item">🔔 Loading announcements...</span>
     </div>
-
-    <!-- Mission Card -->
-    <div class="info-card">
-      <div class="info-card-header">
-        <div class="info-card-icon">🎯</div>
-        <h2>Mission</h2>
-      </div>
-      <ul class="mission-list">
-        <li><span class="mission-bullet">1</span>To develop innovative and competent engineers for the growth of industry and society.</li>
-        <li><span class="mission-bullet">2</span>To sustain an institutional environment in which innovative ideas, research and consultancy develop and from which the innovators of tomorrow emerge.</li>
-        <li><span class="mission-bullet">3</span>To address socio-technical problems faced by the state through the talent we nurture.</li>
-        <li><span class="mission-bullet">4</span>To serve the local community through the use of local resources.</li>
-        <li><span class="mission-bullet">5</span>To encourage dissemination and discovery of knowledge in an atmosphere of scientific freedom.</li>
-        <li><span class="mission-bullet">6</span>To actively involve in rural development by way of involvement in technology-based solutions for problems in rural areas.</li>
-      </ul>
-    </div>
-
-    <!-- Facilities Card -->
-    <div class="info-card">
-      <div class="info-card-header">
-        <div class="info-card-icon">🏠</div>
-        <h2>Facilities</h2>
-      </div>
-      <p>The college provides world-class facilities including:</p>
-      <ul class="mission-list" style="margin-top:16px;">
-        <li><span class="mission-bullet">🏠</span>6 Hostels (5 Boys + 1 Girls), approx. 1,025 rooms for boys and 205 for girls</li>
-        <li><span class="mission-bullet">🍽</span>Mess facilities with hygienic, nutritious food</li>
-        <li><span class="mission-bullet">💻</span>Well-equipped computer labs with high-speed internet</li>
-        <li><span class="mission-bullet">📚</span>Central library with a vast collection of technical books and journals</li>
-        <li><span class="mission-bullet">🌱</span>Startup Cell "RAISE" for entrepreneurship development</li>
-        <li><span class="mission-bullet">🏆</span>Sports complex and extracurricular activity spaces</li>
-      </ul>
-    </div>
-
   </div>
-</section>
 
-<!-- ── Footer ── -->
-<footer class="site-footer">
-  <div class="footer-grid">
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
+  <!-- ── Nav ── -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <span class="nav-brand">🏛 RECB Portal</span>
+      <ul class="nav-links" id="nav-links">
         <li><a href="index.html">Home</a></li>
+        <li><a href="about.html" class="active">About</a></li>
         <li><a href="courses.html">Courses</a></li>
         <li><a href="notes.html">Study Materials</a></li>
-        <li><a href="login.html">Admin</a></li>
+        <li><a href="notes.html?type=PYQ">PYQ</a></li>
+        <li><a href="resources.html">General Resources</a></li>
+        <li><a href="login.html" class="nav-btn">Admin Login</a></li>
       </ul>
+      <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
     </div>
-    <div class="footer-col">
-      <h4>External Links</h4>
-      <ul>
-        <li><a href="https://aktu.ac.in/" target="_blank">AKTU</a></li>
-        <li><a href="https://scholarship.up.gov.in/" target="_blank">UP Scholarship</a></li>
-        <li><a href="https://dte.up.gov.in/" target="_blank">DTE UP</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <p>Near Eidgah, Dattyana Road,<br>Chandpur, Bijnor – 246725<br><br>📞 01345-221301<br>📧 info@recb.ac.in</p>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 Rajkiya Engineering College Bijnor. All rights reserved.</span>
-  </div>
-</footer>
+  </nav>
 
-<script src="js/nav.js"></script>
+  <!-- ── About Hero ── -->
+  <section class="about-hero">
+    <div class="hero-badge"
+      style="display:inline-flex;align-items:center;gap:8px;padding:6px 16px;background:rgba(249,115,22,0.12);border:1px solid rgba(249,115,22,0.3);border-radius:20px;font-size:0.78rem;font-weight:700;color:var(--primary);letter-spacing:2px;text-transform:uppercase;margin-bottom:20px;">
+      🏛 About the College</div>
+    <h1>Rajkiya Engineering College</h1>
+    <p>Serving the community through quality technical education since 2010</p>
+  </section>
+
+  <!-- ── Stats ── -->
+  <div class="stats-banner">
+    <div class="stat-box"><span class="num">2010</span><span class="lbl">Established</span></div>
+    <div class="stat-box"><span class="num">4</span><span class="lbl">B.Tech Branches</span></div>
+    <div class="stat-box"><span class="num">60+</span><span class="lbl">Faculty Members</span></div>
+    <div class="stat-box"><span class="num">1200+</span><span class="lbl">Students Enrolled</span></div>
+    <div class="stat-box"><span class="num">6</span><span class="lbl">Hostels</span></div>
+  </div>
+
+  <!-- ── About Content ── -->
+  <section class="about-content">
+    <div class="about-inner">
+
+      <!-- About Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon">🏫</div>
+          <h2>About the College</h2>
+        </div>
+        <p>
+          Rajkiya Engineering College (formerly Dr. Bhim Rao Ambedkar Engineering College of Information Technology,
+          Bijnor) was started by the Government of Uttar Pradesh, Department of Technical Education under the Special
+          Component Plan (SCP) — a plan of the Union Government of India for the promotion of Technical Education in the
+          socially and economically weaker sections of society.
+        </p>
+        <br>
+        <p>
+          Admissions to the College began in the year 2010–11 with three branches: Civil Engineering, Electrical
+          Engineering and Information Technology, with an intake of 60 students in each branch. The college is
+          affiliated to Dr. A.P.J. Abdul Kalam Technical University (AKTU), Lucknow.
+        </p>
+      </div>
+
+      <!-- Vision Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon">🔭</div>
+          <h2>Vision</h2>
+        </div>
+        <p>
+          "To be recognized as a premier institution in the field of Engineering and Technology, to provide
+          industry-ready technocrats with distinctive competence and ethical standards for the development and social
+          welfare of society."
+        </p>
+      </div>
+
+      <!-- Mission Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon">🎯</div>
+          <h2>Mission</h2>
+        </div>
+        <ul class="mission-list">
+          <li><span class="mission-bullet">1</span>To develop innovative and competent engineers for the growth of
+            industry and society.</li>
+          <li><span class="mission-bullet">2</span>To sustain an institutional environment in which innovative ideas,
+            research and consultancy develop and from which the innovators of tomorrow emerge.</li>
+          <li><span class="mission-bullet">3</span>To address socio-technical problems faced by the state through the
+            talent we nurture.</li>
+          <li><span class="mission-bullet">4</span>To serve the local community through the use of local resources.</li>
+          <li><span class="mission-bullet">5</span>To encourage dissemination and discovery of knowledge in an
+            atmosphere of scientific freedom.</li>
+          <li><span class="mission-bullet">6</span>To actively involve in rural development by way of involvement in
+            technology-based solutions for problems in rural areas.</li>
+        </ul>
+      </div>
+
+      <!-- Facilities Card -->
+      <div class="info-card">
+        <div class="info-card-header">
+          <div class="info-card-icon">🏠</div>
+          <h2>Facilities</h2>
+        </div>
+        <p>The college provides world-class facilities including:</p>
+        <ul class="mission-list" style="margin-top:16px;">
+          <li><span class="mission-bullet">🏠</span>6 Hostels (5 Boys + 1 Girls), approx. 1,025 rooms for boys and 205
+            for girls</li>
+          <li><span class="mission-bullet">🍽</span>Mess facilities with hygienic, nutritious food</li>
+          <li><span class="mission-bullet">💻</span>Well-equipped computer labs with high-speed internet</li>
+          <li><span class="mission-bullet">📚</span>Central library with a vast collection of technical books and
+            journals</li>
+          <li><span class="mission-bullet">🌱</span>Startup Cell "RAISE" for entrepreneurship development</li>
+          <li><span class="mission-bullet">🏆</span>Sports complex and extracurricular activity spaces</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="courses.html">Courses</a></li>
+          <li><a href="notes.html">Study Materials</a></li>
+          <li><a href="login.html">Admin</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>External Links</h4>
+        <ul>
+          <li><a href="https://aktu.ac.in/" target="_blank">AKTU</a></li>
+          <li><a href="https://scholarship.up.gov.in/" target="_blank">UP Scholarship</a></li>
+          <li><a href="https://dte.up.gov.in/" target="_blank">DTE UP</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>Near Eidgah, Dattyana Road,<br>Chandpur, Bijnor – 246725<br><br>📞 01345-221301<br>📧 info@recb.ac.in</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Rajkiya Engineering College Bijnor. All rights reserved.</span>
+      <span>Developed with ❤ by Numan</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
 </body>
+
 </html>

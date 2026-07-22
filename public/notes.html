@@ -1,190 +1,195 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RECB | Study Materials</title>
-  <meta name="description" content="Download notes, syllabus, CT papers and quantum for all years and branches at REC Bijnor.">
+  <meta name="description"
+    content="Download notes, syllabus, CT papers and quantum for all years and branches at REC Bijnor.">
   <link rel="stylesheet" href="style/main.css">
   <link rel="stylesheet" href="style/notes.css">
 </head>
+
 <body>
 
-<!-- ── Header ── -->
-<header class="site-header">
-  <div class="header-inner">
-    <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
-    <div class="header-title">
-      <h1>Rajkiya Engineering College, Bijnor</h1>
-      <p>Chandpur, Bijnor · Uttar Pradesh – 246725</p>
-    </div>
-    <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
-  </div>
-</header>
-
-<!-- ── Marquee ── -->
-<div class="marquee-strip">
-  <div class="marquee-track" id="marquee-track">
-    <span class="marquee-item">🔔 Loading announcements...</span>
-  </div>
-</div>
-
-<!-- ── Nav ── -->
-<nav class="site-nav">
-  <div class="nav-inner">
-    <span class="nav-brand">🏛 RECB Portal</span>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="index.html">Home</a></li>
-      <li><a href="about.html">About</a></li>
-      <li><a href="courses.html">Courses</a></li>
-      <li><a href="notes.html" class="active">Study Materials</a></li>
-      <li><a href="notes.html?type=PYQ">PYQ</a></li>
-      <li><a href="resources.html">General Resources</a></li>
-      <li><a href="login.html" class="nav-btn">Admin Login</a></li>
-    </ul>
-    <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
-  </div>
-</nav>
-
-<!-- ── Page ── -->
-<div class="page-wrapper">
-
-  <!-- Page Title -->
-  <div class="section-title" style="text-align:left;margin-bottom:28px;">
-    <h2>📚 Study Materials</h2>
-    <p>Notes, Syllabus, CT Papers and Quantum — all dynamically loaded from the database</p>
-  </div>
-
-  <!-- Stats -->
-  <div class="stats-row">
-    <div class="stat-chip">Total <span id="total-notes">–</span> resources</div>
-    <div class="stat-chip">📖 Notes</div>
-    <div class="stat-chip">📋 Syllabus</div>
-    <div class="stat-chip">📝 CT Papers</div>
-    <div class="stat-chip">⚡ Quantum</div>
-  </div>
-
-  <!-- Year Tabs -->
-  <div class="year-tabs">
-    <button class="year-tab active" data-year="" id="tab-all">All Years</button>
-    <button class="year-tab" data-year="1" id="tab-yr1">1st Year</button>
-    <button class="year-tab" data-year="2" id="tab-yr2">2nd Year</button>
-    <button class="year-tab" data-year="3" id="tab-yr3">3rd Year</button>
-    <button class="year-tab" data-year="4" id="tab-yr4">4th Year</button>
-  </div>
-
-  <!-- Branch Cards -->
-  <div class="branch-grid">
-    <div class="branch-card" data-branch="IT" id="branch-it">
-      <div class="branch-icon">💻</div>
-      <h3>IT</h3>
-      <p>Information Technology</p>
-    </div>
-    <div class="branch-card" data-branch="CE" id="branch-ce">
-      <div class="branch-icon">🏗</div>
-      <h3>CE</h3>
-      <p>Civil Engineering</p>
-    </div>
-    <div class="branch-card" data-branch="EE" id="branch-ee">
-      <div class="branch-icon">⚡</div>
-      <h3>EE</h3>
-      <p>Electrical Engineering</p>
-    </div>
-    <div class="branch-card" data-branch="ME" id="branch-me">
-      <div class="branch-icon">⚙</div>
-      <h3>ME</h3>
-      <p>Mechanical Engineering</p>
-    </div>
-  </div>
-
-  <!-- Filters -->
-  <div class="filter-section">
-    <div class="filter-row">
-      <div class="filter-group">
-        <label for="scope-filter">Note Format</label>
-        <select id="scope-filter">
-          <option value="">All Formats</option>
-          <option value="combined">📦 Combined (Full Notes)</option>
-          <option value="unit">📑 Unit-wise</option>
-        </select>
+  <!-- ── Header ── -->
+  <header class="site-header">
+    <div class="header-inner">
+      <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
+      <div class="header-title">
+        <h1>Rajkiya Engineering College, Bijnor</h1>
+        <p>Chandpur, Bijnor · Uttar Pradesh – 246725</p>
       </div>
-      <div class="filter-group">
-        <label for="unit-filter">Unit</label>
-        <select id="unit-filter" disabled>
-          <option value="">All Units</option>
-          <option value="1">Unit 1</option>
-          <option value="2">Unit 2</option>
-          <option value="3">Unit 3</option>
-          <option value="4">Unit 4</option>
-          <option value="5">Unit 5</option>
-          <option value="6">Unit 6</option>
-          <option value="7">Unit 7</option>
-          <option value="8">Unit 8</option>
-          <option value="9">Unit 9</option>
-          <option value="10">Unit 10</option>
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="type-filter">Resource Type</label>
-        <select id="type-filter">
-          <option value="">All Types</option>
-          <option value="Notes">📖 Notes</option>
-          <option value="Syllabus">📋 Syllabus</option>
-          <option value="CT_Paper">📝 CT Paper</option>
-          <option value="Quantum">⚡ Quantum</option>
-          <option value="PYQ">Previous Year Papers (PYQ)</option>
-        </select>
-      </div>
-      <div class="filter-group" style="flex:2">
-        <label for="search-input">Search</label>
-        <input type="text" id="search-input" placeholder="Search by subject or title..." autocomplete="off">
-      </div>
+      <img src="/image/logo.png" alt="RECB Logo" class="header-logo">
+    </div>
+  </header>
+
+  <!-- ── Marquee ── -->
+  <div class="marquee-strip">
+    <div class="marquee-track" id="marquee-track">
+      <span class="marquee-item">🔔 Loading announcements...</span>
     </div>
   </div>
 
-  <!-- Results Header -->
-  <div class="results-info">
-    <p class="results-count" id="result-count">Loading...</p>
-    <button class="btn btn-outline btn-sm" id="clear-filters-btn" onclick="clearFilters()">✕ Clear Filters</button>
-  </div>
-
-  <!-- Loading -->
-  <div id="notes-loading" style="display:none;">
-    <div class="spinner"></div>
-  </div>
-
-  <!-- Notes Grid -->
-  <div class="notes-grid" id="notes-grid"></div>
-
-</div>
-
-<!-- ── Footer ── -->
-<footer class="site-footer">
-  <div class="footer-grid">
-    <div class="footer-col">
-      <h4>Quick Links</h4>
-      <ul>
+  <!-- ── Nav ── -->
+  <nav class="site-nav">
+    <div class="nav-inner">
+      <span class="nav-brand">🏛 RECB Portal</span>
+      <ul class="nav-links" id="nav-links">
         <li><a href="index.html">Home</a></li>
         <li><a href="about.html">About</a></li>
         <li><a href="courses.html">Courses</a></li>
+        <li><a href="notes.html" class="active">Study Materials</a></li>
+        <li><a href="notes.html?type=PYQ">PYQ</a></li>
+        <li><a href="resources.html">General Resources</a></li>
+        <li><a href="login.html" class="nav-btn">Admin Login</a></li>
       </ul>
+      <div class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></div>
     </div>
-    <div class="footer-col">
-      <h4>Contact</h4>
-      <p>Near Eidgah, Dattyana Road,<br>Chandpur, Bijnor – 246725<br><br>📞 01345-221301</p>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span>© 2025 Rajkiya Engineering College Bijnor.</span>
-  </div>
-</footer>
+  </nav>
 
-<script src="js/nav.js"></script>
-<script src="js/notes.js"></script>
-<script>
-  function clearFilters() {
-    window.clearNotesFilters();
-  }
-</script>
+  <!-- ── Page ── -->
+  <div class="page-wrapper">
+
+    <!-- Page Title -->
+    <div class="section-title" style="text-align:left;margin-bottom:28px;">
+      <h2>📚 Study Materials</h2>
+      <p>Notes, Syllabus, CT Papers and Quantum — all dynamically loaded from the database</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-chip">Total <span id="total-notes">–</span> resources</div>
+      <div class="stat-chip">📖 Notes</div>
+      <div class="stat-chip">📋 Syllabus</div>
+      <div class="stat-chip">📝 CT Papers</div>
+      <div class="stat-chip">⚡ Quantum</div>
+    </div>
+
+    <!-- Year Tabs -->
+    <div class="year-tabs">
+      <button class="year-tab active" data-year="" id="tab-all">All Years</button>
+      <button class="year-tab" data-year="1" id="tab-yr1">1st Year</button>
+      <button class="year-tab" data-year="2" id="tab-yr2">2nd Year</button>
+      <button class="year-tab" data-year="3" id="tab-yr3">3rd Year</button>
+      <button class="year-tab" data-year="4" id="tab-yr4">4th Year</button>
+    </div>
+
+    <!-- Branch Cards -->
+    <div class="branch-grid">
+      <div class="branch-card" data-branch="IT" id="branch-it">
+        <div class="branch-icon">💻</div>
+        <h3>IT</h3>
+        <p>Information Technology</p>
+      </div>
+      <div class="branch-card" data-branch="CE" id="branch-ce">
+        <div class="branch-icon">🏗</div>
+        <h3>CE</h3>
+        <p>Civil Engineering</p>
+      </div>
+      <div class="branch-card" data-branch="EE" id="branch-ee">
+        <div class="branch-icon">⚡</div>
+        <h3>EE</h3>
+        <p>Electrical Engineering</p>
+      </div>
+      <div class="branch-card" data-branch="ME" id="branch-me">
+        <div class="branch-icon">⚙</div>
+        <h3>ME</h3>
+        <p>Mechanical Engineering</p>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-section">
+      <div class="filter-row">
+        <div class="filter-group">
+          <label for="scope-filter">Note Format</label>
+          <select id="scope-filter">
+            <option value="">All Formats</option>
+            <option value="combined">📦 Combined (Full Notes)</option>
+            <option value="unit">📑 Unit-wise</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="unit-filter">Unit</label>
+          <select id="unit-filter" disabled>
+            <option value="">All Units</option>
+            <option value="1">Unit 1</option>
+            <option value="2">Unit 2</option>
+            <option value="3">Unit 3</option>
+            <option value="4">Unit 4</option>
+            <option value="5">Unit 5</option>
+            <option value="6">Unit 6</option>
+            <option value="7">Unit 7</option>
+            <option value="8">Unit 8</option>
+            <option value="9">Unit 9</option>
+            <option value="10">Unit 10</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label for="type-filter">Resource Type</label>
+          <select id="type-filter">
+            <option value="">All Types</option>
+            <option value="Notes">📖 Notes</option>
+            <option value="Syllabus">📋 Syllabus</option>
+            <option value="CT_Paper">📝 CT Paper</option>
+            <option value="Quantum">⚡ Quantum</option>
+            <option value="PYQ">Previous Year Papers (PYQ)</option>
+          </select>
+        </div>
+        <div class="filter-group" style="flex:2">
+          <label for="search-input">Search</label>
+          <input type="text" id="search-input" placeholder="Search by subject or title..." autocomplete="off">
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Header -->
+    <div class="results-info">
+      <p class="results-count" id="result-count">Loading...</p>
+      <button class="btn btn-outline btn-sm" id="clear-filters-btn" onclick="clearFilters()">✕ Clear Filters</button>
+    </div>
+
+    <!-- Loading -->
+    <div id="notes-loading" style="display:none;">
+      <div class="spinner"></div>
+    </div>
+
+    <!-- Notes Grid -->
+    <div class="notes-grid" id="notes-grid"></div>
+
+  </div>
+
+  <!-- ── Footer ── -->
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="courses.html">Courses</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p>Near Eidgah, Dattyana Road,<br>Chandpur, Bijnor – 246725<br><br>📞 01345-221301</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Rajkiya Engineering College Bijnor.</span>
+      <span>Developed with ❤ by Numan</span>
+    </div>
+  </footer>
+
+  <script src="js/nav.js"></script>
+  <script src="js/notes.js"></script>
+  <script>
+    function clearFilters() {
+      window.clearNotesFilters();
+    }
+  </script>
 </body>
+
 </html>
