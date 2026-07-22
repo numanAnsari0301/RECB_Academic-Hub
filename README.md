@@ -26,7 +26,28 @@
 - **☁️ Cloud & Local Storage**: Supports direct PDF/file uploads as well as external Google Drive resource links.
 - **⚡ MongoDB Atlas Data Store**: Automated database seeding and cloud persistence.
 
+
 ---
+
+## 📸 Application Screenshots
+
+### 📚 Study Materials & Branch Filters
+![Study Materials & Branch Filters](image/screenshots/study-materials.png)
+
+### 📄 Notes, Syllabus & CT Paper Cards
+![Study Material Cards](image/screenshots/study-materials-grid.png)
+
+### 📂 General Resources & Student Resource Request
+![General Resources & Resource Request](image/screenshots/general-resources.png)
+
+### 🔐 Admin Portal Login
+![Admin Portal Login](image/screenshots/admin-login.png)
+
+### 🏢 About College & Campus Stats
+![About College Page](image/screenshots/about-college.png)
+
+---
+
 
 ## 🚀 Getting Started (Local Setup)
 
