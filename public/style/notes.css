@@ -195,6 +195,8 @@
 }
 .tag-year    { background: rgba(251,191,36,0.12); color: var(--accent); }
 .tag-branch  { background: rgba(59,130,246,0.12); color: #60a5fa; }
+.tag-unit    { background: rgba(16,185,129,0.12); color: #34d399; }
+.tag-combined { background: rgba(168,85,247,0.12); color: #c084fc; }
 
 .note-card-footer {
   display: flex;

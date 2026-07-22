@@ -2,25 +2,26 @@
 (function () {
   'use strict';
 
-  // ─── State ────────────────────────────────────────────────────────
   let allNotes = [];
   const initialParams = new URLSearchParams(window.location.search);
   let activeYear   = ['1', '2', '3', '4'].includes(initialParams.get('year')) ? initialParams.get('year') : '';
   let activeBranch = ['IT', 'CE', 'EE', 'ME'].includes(initialParams.get('branch')) ? initialParams.get('branch') : '';
   let activeType   = ['Notes', 'Syllabus', 'CT_Paper', 'Quantum', 'PYQ'].includes(initialParams.get('type')) ? initialParams.get('type') : '';
+  let activeScope  = ['combined', 'unit'].includes(initialParams.get('scope')) ? initialParams.get('scope') : '';
+  let activeUnit   = initialParams.get('unit') || '';
   let searchQuery  = '';
 
-  // ─── DOM References ───────────────────────────────────────────────
   const notesGrid    = document.getElementById('notes-grid');
   const yearTabs     = document.querySelectorAll('.year-tab');
   const branchCards  = document.querySelectorAll('.branch-card');
   const typeFilter   = document.getElementById('type-filter');
+  const scopeFilter  = document.getElementById('scope-filter');
+  const unitFilter   = document.getElementById('unit-filter');
   const searchInput  = document.getElementById('search-input');
   const resultCount  = document.getElementById('result-count');
   const loadingEl    = document.getElementById('notes-loading');
   const totalEl      = document.getElementById('total-notes');
 
-  // ─── Type → emoji mapping ─────────────────────────────────────────
   const typeIcon = {
     'Notes':    '📖',
     'Syllabus': '📋',
@@ -37,7 +38,6 @@
     'PYQ':      'badge-ct'
   };
 
-  // ─── Fetch all notes once ─────────────────────────────────────────
   async function fetchNotes() {
     if (loadingEl) loadingEl.style.display = 'block';
     if (notesGrid) notesGrid.innerHTML = '';
@@ -60,7 +60,16 @@
     }
   }
 
-  // ─── Filter & Render ─────────────────────────────────────────────
+  function updateUnitFilterState() {
+    if (!unitFilter) return;
+    const showUnits = activeScope === 'unit';
+    unitFilter.disabled = !showUnits;
+    if (!showUnits) {
+      activeUnit = '';
+      unitFilter.value = '';
+    }
+  }
+
   function renderNotes() {
     if (!notesGrid) return;
 
@@ -69,12 +78,15 @@
     if (activeYear)   filtered = filtered.filter(n => String(n.year) === activeYear);
     if (activeBranch) filtered = filtered.filter(n => n.branch === activeBranch);
     if (activeType)   filtered = filtered.filter(n => n.type === activeType);
+    if (activeScope)  filtered = filtered.filter(n => (n.scope || 'combined') === activeScope);
+    if (activeUnit)   filtered = filtered.filter(n => String(n.unit) === activeUnit);
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
       filtered = filtered.filter(n =>
         n.title.toLowerCase().includes(q) ||
         n.subject.toLowerCase().includes(q) ||
-        (n.description || '').toLowerCase().includes(q)
+        (n.description || '').toLowerCase().includes(q) ||
+        (n.unit_title || '').toLowerCase().includes(q)
       );
     }
 
@@ -90,9 +102,16 @@
       return;
     }
 
-    notesGrid.innerHTML = filtered.map(note => buildNoteCard(note)).join('');
+    const sorted = [...filtered].sort((a, b) => {
+      if (a.subject !== b.subject) return a.subject.localeCompare(b.subject);
+      const scopeA = a.scope || 'combined';
+      const scopeB = b.scope || 'combined';
+      if (scopeA !== scopeB) return scopeA === 'combined' ? -1 : 1;
+      return (a.unit || 0) - (b.unit || 0);
+    });
 
-    // Animate cards in
+    notesGrid.innerHTML = sorted.map(note => buildNoteCard(note)).join('');
+
     requestAnimationFrame(() => {
       notesGrid.querySelectorAll('.note-card').forEach((card, i) => {
         card.style.opacity = '0';
@@ -106,13 +125,16 @@
     });
   }
 
-  // ─── Build Note Card HTML ─────────────────────────────────────────
   function buildNoteCard(note) {
     const icon   = typeIcon[note.type]  || '📄';
     const badge  = typeBadge[note.type] || 'badge-notes';
     const hasFile = note.file_path || note.drive_link;
     const downloadUrl = hasFile ? `/download/${note.id}` : '#';
     const viewUrl = safeExternalUrl(note.drive_link) || (note.file_path ? `/download/${note.id}` : '#');
+    const scope = note.scope || 'combined';
+    const scopeLabel = scope === 'unit'
+      ? `Unit ${note.unit}${note.unit_title ? `: ${note.unit_title}` : ''}`
+      : 'Combined Notes';
 
     return `
       <div class="note-card glass-card">
@@ -128,6 +150,7 @@
         <div class="note-tags">
           <span class="tag tag-year">Year ${note.year}</span>
           <span class="tag tag-branch">${escHtml(note.branch)}</span>
+          <span class="tag ${scope === 'unit' ? 'tag-unit' : 'tag-combined'}">${escHtml(scopeLabel)}</span>
         </div>
         <div class="note-card-footer">
           ${hasFile
@@ -163,17 +186,21 @@
     activeYear = '';
     activeBranch = '';
     activeType = '';
+    activeScope = '';
+    activeUnit = '';
     searchQuery = '';
     yearTabs.forEach(tab => tab.classList.toggle('active', !tab.dataset.year));
     branchCards.forEach(card => card.classList.remove('active'));
     if (typeFilter) typeFilter.value = '';
+    if (scopeFilter) scopeFilter.value = '';
+    if (unitFilter) {
+      unitFilter.value = '';
+      unitFilter.disabled = true;
+    }
     if (searchInput) searchInput.value = '';
     renderNotes();
   };
 
-  // ─── Event Listeners ─────────────────────────────────────────────
-
-  // Year tabs
   yearTabs.forEach(tab => {
     tab.addEventListener('click', () => {
       yearTabs.forEach(t => t.classList.remove('active'));
@@ -183,7 +210,6 @@
     });
   });
 
-  // Branch cards
   branchCards.forEach(card => {
     card.addEventListener('click', () => {
       if (card.classList.contains('active')) {
@@ -198,7 +224,6 @@
     });
   });
 
-  // Type filter dropdown
   if (typeFilter) {
     typeFilter.addEventListener('change', () => {
       activeType = typeFilter.value;
@@ -206,7 +231,21 @@
     });
   }
 
-  // Search input (debounced)
+  if (scopeFilter) {
+    scopeFilter.addEventListener('change', () => {
+      activeScope = scopeFilter.value;
+      updateUnitFilterState();
+      renderNotes();
+    });
+  }
+
+  if (unitFilter) {
+    unitFilter.addEventListener('change', () => {
+      activeUnit = unitFilter.value;
+      renderNotes();
+    });
+  }
+
   let searchTimer;
   if (searchInput) {
     searchInput.addEventListener('input', () => {
@@ -218,7 +257,6 @@
     });
   }
 
-  // ─── Init ─────────────────────────────────────────────────────────
   document.addEventListener('DOMContentLoaded', () => {
     if (['1', '2', '3', '4'].includes(activeYear)) {
       yearTabs.forEach(tab => tab.classList.toggle('active', tab.dataset.year === activeYear));
@@ -227,6 +265,9 @@
       branchCards.forEach(card => card.classList.toggle('active', card.dataset.branch === activeBranch));
     }
     if (typeFilter) typeFilter.value = activeType;
+    if (scopeFilter) scopeFilter.value = activeScope;
+    updateUnitFilterState();
+    if (unitFilter && activeUnit) unitFilter.value = activeUnit;
     fetchNotes();
   });
 })();

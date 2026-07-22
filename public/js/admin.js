@@ -82,12 +82,14 @@
       json.data.forEach(note => notesById.set(note.id, note));
       tbody.innerHTML = json.data.map(note => `
         <tr>
-          <td>${note.id}</td>
+          <td>${esc(String(note.id).slice(-6))}</td>
           <td>${esc(note.title)}</td>
           <td>${esc(note.subject)}</td>
           <td><span class="badge badge-notes">Yr ${note.year}</span></td>
           <td>${esc(note.branch)}</td>
           <td><span class="badge">${esc(note.type)}</span></td>
+          <td><span class="badge">${note.scope === 'unit' ? 'Unit' : 'Combined'}</span></td>
+          <td>${note.scope === 'unit' && note.unit ? `Unit ${note.unit}${note.unit_title ? `: ${esc(note.unit_title)}` : ''}` : '—'}</td>
           <td>
             ${note.file_path ? `<a href="/download/${note.id}" class="btn btn-sm btn-outline" target="_blank">⬇ File</a>` : ''}
             ${note.drive_link ? `<a href="${esc(note.drive_link)}" class="btn btn-sm btn-outline" target="_blank">🔗 Drive</a>` : ''}
@@ -143,9 +145,23 @@
     document.getElementById('edit-branch').value = note.branch || 'IT';
     document.getElementById('edit-drive-link').value = note.drive_link || '';
     document.getElementById('edit-description').value = note.description || '';
+    const scope = note.scope === 'unit' ? 'unit' : 'combined';
+    document.getElementById('edit-scope-combined').checked = scope === 'combined';
+    document.getElementById('edit-scope-unit').checked = scope === 'unit';
+    document.getElementById('edit-unit').value = note.unit || '';
+    document.getElementById('edit-unit-title').value = note.unit_title || '';
+    toggleEditUnitFields(scope);
     editModal.classList.add('open');
     editModal.setAttribute('aria-hidden', 'false');
   };
+
+  function toggleEditUnitFields(scope) {
+    const fields = document.getElementById('edit-unit-fields');
+    if (fields) fields.style.display = scope === 'unit' ? 'flex' : 'none';
+  }
+
+  document.getElementById('edit-scope-combined')?.addEventListener('change', () => toggleEditUnitFields('combined'));
+  document.getElementById('edit-scope-unit')?.addEventListener('change', () => toggleEditUnitFields('unit'));
 
   document.getElementById('close-edit-modal')?.addEventListener('click', closeEditModal);
   document.getElementById('cancel-edit-modal')?.addEventListener('click', closeEditModal);
@@ -157,12 +173,16 @@
     editForm.addEventListener('submit', async event => {
       event.preventDefault();
       const id = document.getElementById('edit-note-id').value;
+      const scope = document.getElementById('edit-scope-unit').checked ? 'unit' : 'combined';
       const payload = {
         title: document.getElementById('edit-title').value.trim(),
         subject: document.getElementById('edit-subject').value.trim(),
         type: document.getElementById('edit-type').value,
         year: Number(document.getElementById('edit-year').value),
         branch: document.getElementById('edit-branch').value,
+        scope,
+        unit: scope === 'unit' ? Number(document.getElementById('edit-unit').value) : null,
+        unit_title: scope === 'unit' ? document.getElementById('edit-unit-title').value.trim() || null : null,
         drive_link: document.getElementById('edit-drive-link').value.trim() || null,
         description: document.getElementById('edit-description').value.trim() || null
       };
@@ -184,8 +204,91 @@
     });
   }
 
-  // ─── Upload Form ──────────────────────────────────────────────────
+  // ─── Upload mode tabs ─────────────────────────────────────────────
   const uploadForm = document.getElementById('upload-form');
+  const unitsUploadForm = document.getElementById('units-upload-form');
+  const unitRowsContainer = document.getElementById('unit-rows-container');
+  let unitRowCount = 0;
+
+  document.querySelectorAll('.upload-mode-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.upload-mode-btn').forEach(b => {
+        b.classList.toggle('btn-primary', b === btn);
+        b.classList.toggle('btn-outline', b !== btn);
+        b.classList.toggle('active', b === btn);
+      });
+      const isUnits = btn.dataset.mode === 'units';
+      if (uploadForm) uploadForm.style.display = isUnits ? 'none' : 'block';
+      if (unitsUploadForm) unitsUploadForm.style.display = isUnits ? 'block' : 'none';
+    });
+  });
+
+  document.querySelectorAll('#upload-form input[name="scope"]').forEach(radio => {
+    radio.addEventListener('change', () => {
+      const unitFields = document.getElementById('single-unit-fields');
+      const isUnit = radio.value === 'unit' && radio.checked;
+      if (unitFields) unitFields.style.display = isUnit ? 'flex' : 'none';
+      const unitInput = document.getElementById('unit');
+      if (unitInput) unitInput.required = isUnit;
+    });
+  });
+
+  function createUnitRow(index) {
+    const row = document.createElement('div');
+    row.className = 'glass-card unit-upload-row';
+    row.style.cssText = 'padding:16px;margin-bottom:12px;display:flex;flex-direction:column;gap:12px;';
+    row.innerHTML = `
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <strong>Unit ${index}</strong>
+        ${index > 1 ? '<button type="button" class="btn btn-sm btn-danger remove-unit-row">Remove</button>' : ''}
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Unit number *</label><input type="number" name="unit_${index}" min="1" max="20" value="${index}" required></div>
+        <div class="form-group"><label>Unit title</label><input type="text" name="unit_title_${index}" placeholder="Optional topic name"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>File</label><input type="file" name="files" accept=".pdf,.zip,.rar,.docx,.pptx"></div>
+        <div class="form-group"><label>Or Drive link</label><input type="url" name="drive_link_${index}" placeholder="https://drive.google.com/..."></div>
+      </div>
+    `;
+    row.querySelector('.remove-unit-row')?.addEventListener('click', () => {
+      row.remove();
+      reindexUnitRows();
+    });
+    return row;
+  }
+
+  function reindexUnitRows() {
+    if (!unitRowsContainer) return;
+    const rows = [...unitRowsContainer.querySelectorAll('.unit-upload-row')];
+    unitRowCount = rows.length;
+    rows.forEach((row, i) => {
+      const index = i + 1;
+      row.querySelector('strong').textContent = `Unit ${index}`;
+      row.querySelector('[name^="unit_"]').name = `unit_${index}`;
+      const titleInput = row.querySelector('[name^="unit_title_"]');
+      if (titleInput) titleInput.name = `unit_title_${index}`;
+      const driveInput = row.querySelector('[name^="drive_link_"]');
+      if (driveInput) driveInput.name = `drive_link_${index}`;
+    });
+  }
+
+  function ensureUnitRows(min = 2) {
+    if (!unitRowsContainer) return;
+    while (unitRowCount < min) {
+      unitRowCount += 1;
+      unitRowsContainer.appendChild(createUnitRow(unitRowCount));
+    }
+  }
+
+  document.getElementById('add-unit-row-btn')?.addEventListener('click', () => {
+    unitRowCount += 1;
+    unitRowsContainer?.appendChild(createUnitRow(unitRowCount));
+  });
+
+  ensureUnitRows(2);
+
+  // ─── Upload Form ──────────────────────────────────────────────────
   if (uploadForm) {
     uploadForm.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -211,6 +314,40 @@
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '⬆ Upload Note';
+      }
+    });
+  }
+
+  if (unitsUploadForm) {
+    unitsUploadForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const submitBtn = document.getElementById('units-upload-submit-btn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading units...';
+
+      const formData = new FormData(unitsUploadForm);
+      const rowCount = unitRowsContainer?.querySelectorAll('.unit-upload-row').length || 0;
+      formData.set('unit_count', String(rowCount));
+
+      try {
+        const res = await fetch('/api/notes/upload-units', { method: 'POST', body: formData });
+        const json = await res.json();
+        if (json.success) {
+          showToast(`✅ ${json.count} unit note(s) uploaded!`);
+          unitsUploadForm.reset();
+          unitRowsContainer.innerHTML = '';
+          unitRowCount = 0;
+          ensureUnitRows(2);
+          loadNotesTable();
+          loadDashboard();
+        } else {
+          showToast(json.error || 'Upload failed', 'error');
+        }
+      } catch (_) {
+        showToast('Network error', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '⬆ Upload All Units';
       }
     });
   }

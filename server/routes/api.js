@@ -4,6 +4,14 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const mongoose = require('mongoose');
+const {
+  Note,
+  Announcement,
+  GeneralResource,
+  Feedback,
+  toApiDoc
+} = require('../models');
 
 // ─── Multer Upload Config ───────────────────────────────────────────────────────
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -19,7 +27,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100 MB
+  limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowed = ['.pdf', '.zip', '.rar', '.docx', '.pptx', '.png', '.jpg', '.jpeg'];
     const ext = path.extname(file.originalname).toLowerCase();
@@ -28,7 +36,6 @@ const upload = multer({
   }
 });
 
-// ─── Auth Middleware ────────────────────────────────────────────────────────────
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   return res.status(401).json({ error: 'Unauthorized. Admin login required.' });
@@ -36,6 +43,19 @@ function requireAdmin(req, res, next) {
 
 const validBranches = new Set(['IT', 'CE', 'EE', 'ME']);
 const validTypes = new Set(['Notes', 'Syllabus', 'CT_Paper', 'Quantum', 'PYQ']);
+const validScopes = new Set(['unit', 'combined']);
+
+function parseScope(input) {
+  const scope = typeof input.scope === 'string' ? input.scope.trim().toLowerCase() : 'combined';
+  return validScopes.has(scope) ? scope : 'combined';
+}
+
+function parseUnit(input, scope) {
+  if (scope !== 'unit') return { unit: null, unit_title: null };
+  const unit = input.unit === undefined || input.unit === '' ? undefined : Number(input.unit);
+  const unit_title = typeof input.unit_title === 'string' ? input.unit_title.trim() : input.unit_title;
+  return { unit, unit_title: unit_title || null };
+}
 
 function validateNoteMetadata(input, allowPartial = false) {
   const title = typeof input.title === 'string' ? input.title.trim() : input.title;
@@ -43,6 +63,8 @@ function validateNoteMetadata(input, allowPartial = false) {
   const year = input.year === undefined || input.year === '' ? undefined : Number(input.year);
   const branch = typeof input.branch === 'string' ? input.branch.trim().toUpperCase() : input.branch;
   const type = typeof input.type === 'string' ? input.type.trim() : input.type;
+  const scope = parseScope(input);
+  const { unit, unit_title } = parseUnit(input, scope);
 
   if (!allowPartial && (!title || !subject || !year || !branch || !type)) {
     return { error: 'Title, subject, year, branch and type are required.' };
@@ -52,7 +74,14 @@ function validateNoteMetadata(input, allowPartial = false) {
   if (year !== undefined && (!Number.isInteger(year) || year < 1 || year > 4)) return { error: 'Year must be between 1 and 4.' };
   if (branch !== undefined && !validBranches.has(branch)) return { error: 'Branch must be IT, CE, EE or ME.' };
   if (type !== undefined && !validTypes.has(type)) return { error: 'Invalid material type.' };
-  return { data: { title, subject, year, branch, type } };
+  if (scope === 'unit' && unit !== undefined && unit !== null && (!Number.isInteger(unit) || unit < 1 || unit > 20)) {
+    return { error: 'Unit number must be between 1 and 20.' };
+  }
+  if (scope === 'unit' && !allowPartial && (unit === undefined || unit === null)) {
+    return { error: 'Unit number is required for unit-wise uploads.' };
+  }
+
+  return { data: { title, subject, year, branch, type, scope, unit, unit_title } };
 }
 
 function validateExternalUrl(value) {
@@ -69,67 +98,95 @@ function removeUploadedFile(file) {
   if (file?.path && fs.existsSync(file.path)) fs.unlinkSync(file.path);
 }
 
+function isValidObjectId(id) {
+  return mongoose.Types.ObjectId.isValid(id);
+}
+
+function buildNotesQuery(query) {
+  const { year, branch, type, subject, scope, unit, q } = query;
+  const filter = {};
+
+  if (year) filter.year = Number(year);
+  if (branch) filter.branch = branch;
+  if (type) filter.type = type;
+  if (subject) filter.subject = new RegExp(subject.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+  if (scope && validScopes.has(scope)) filter.scope = scope;
+  if (unit) filter.unit = Number(unit);
+  if (q) {
+    const regex = new RegExp(q.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'i');
+    filter.$or = [{ title: regex }, { subject: regex }, { description: regex }, { unit_title: regex }];
+  }
+
+  return filter;
+}
+
+async function createNoteRecord(fields) {
+  const note = await Note.create(fields);
+  return toApiDoc(note);
+}
+
 // ─── NOTES Routes ───────────────────────────────────────────────────────────────
 
-// GET /api/notes – list with optional filters
-router.get('/notes', (req, res) => {
-  const { year, branch, type, subject, q } = req.query;
-  const dbModule = req.app.get('db');
-  let sql = 'SELECT * FROM notes WHERE 1=1';
-  const params = [];
-
-  if (year)    { sql += ' AND year = ?';                          params.push(Number(year)); }
-  if (branch)  { sql += ' AND branch = ?';                        params.push(branch); }
-  if (type)    { sql += ' AND type = ?';                          params.push(type); }
-  if (subject) { sql += ' AND subject LIKE ?';                    params.push(`%${subject}%`); }
-  if (q)       { sql += ' AND (title LIKE ? OR subject LIKE ?)';  params.push(`%${q}%`, `%${q}%`); }
-
-  sql += ' ORDER BY year ASC, branch ASC, type ASC, id ASC';
+router.get('/notes', async (req, res) => {
   try {
-    const notes = dbModule.prepare(sql).all(...params);
-    res.json({ success: true, count: notes.length, data: notes });
+    const notes = await Note.find(buildNotesQuery(req.query))
+      .sort({ year: 1, branch: 1, subject: 1, scope: 1, unit: 1, uploaded_at: -1 });
+    const data = notes.map(toApiDoc);
+    res.json({ success: true, count: data.length, data });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// GET /api/notes/:id
-router.get('/notes/:id', (req, res) => {
-  const dbModule = req.app.get('db');
-  const note = dbModule.prepare('SELECT * FROM notes WHERE id = ?').get(req.params.id);
-  if (!note) return res.status(404).json({ error: 'Note not found.' });
-  res.json({ success: true, data: note });
+router.get('/notes/:id', async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid note id.' });
+  }
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ error: 'Note not found.' });
+    res.json({ success: true, data: toApiDoc(note) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// POST /api/notes/upload – Upload new note (admin only)
-router.post('/notes/upload', requireAdmin, upload.single('file'), (req, res) => {
+router.post('/notes/upload', requireAdmin, upload.single('file'), async (req, res) => {
   const { drive_link, description } = req.body;
   const validation = validateNoteMetadata(req.body);
-  const dbModule = req.app.get('db');
 
   if (validation.error) {
     removeUploadedFile(req.file);
     return res.status(400).json({ error: validation.error });
   }
-  const { title, subject, year, branch, type } = validation.data;
 
+  const { title, subject, year, branch, type, scope, unit, unit_title } = validation.data;
   const file_path = req.file ? 'server/uploads/' + req.file.filename : null;
-
   const externalUrl = validateExternalUrl(drive_link);
+
   if (drive_link && !externalUrl) {
     removeUploadedFile(req.file);
     return res.status(400).json({ error: 'External link must be a valid http or https URL.' });
   }
   if (!file_path && !externalUrl) {
+    removeUploadedFile(req.file);
     return res.status(400).json({ error: 'Provide either a file upload or a Google Drive link.' });
   }
 
   try {
-    const result = dbModule.prepare(
-      'INSERT INTO notes (title, subject, year, branch, type, file_path, drive_link, description) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
-    ).run(title, subject, Number(year), branch, type, file_path, externalUrl, description || null);
-
-    const note = dbModule.prepare('SELECT * FROM notes WHERE id = ?').get(result.lastInsertRowid);
+    const note = await createNoteRecord({
+      title,
+      subject,
+      year: Number(year),
+      branch,
+      type,
+      scope,
+      unit: scope === 'unit' ? Number(unit) : null,
+      unit_title: scope === 'unit' ? unit_title : null,
+      file_path,
+      drive_link: externalUrl,
+      description: description?.trim() || null
+    });
     res.status(201).json({ success: true, message: 'Note uploaded successfully.', data: note });
   } catch (err) {
     removeUploadedFile(req.file);
@@ -137,63 +194,155 @@ router.post('/notes/upload', requireAdmin, upload.single('file'), (req, res) => 
   }
 });
 
-// PUT /api/notes/:id – Update note metadata (admin only)
-router.put('/notes/:id', requireAdmin, (req, res) => {
+router.post('/notes/upload-units', requireAdmin, upload.array('files', 20), async (req, res) => {
+  const { drive_links, description } = req.body;
+  const validation = validateNoteMetadata(req.body);
+
+  if (validation.error) {
+    req.files?.forEach(removeUploadedFile);
+    return res.status(400).json({ error: validation.error });
+  }
+
+  const { subject, year, branch, type } = validation.data;
+  const units = [];
+  const unitCount = Number(req.body.unit_count || 0);
+
+  for (let i = 1; i <= unitCount; i++) {
+    const unitNum = Number(req.body[`unit_${i}`]);
+    const unitTitle = typeof req.body[`unit_title_${i}`] === 'string' ? req.body[`unit_title_${i}`].trim() : '';
+    const driveLink = typeof req.body[`drive_link_${i}`] === 'string' ? req.body[`drive_link_${i}`].trim() : '';
+    if (!Number.isInteger(unitNum) || unitNum < 1 || unitNum > 20) continue;
+    units.push({ unit: unitNum, unit_title: unitTitle || null, drive_link: driveLink || null });
+  }
+
+  if (!units.length) {
+    req.files?.forEach(removeUploadedFile);
+    return res.status(400).json({ error: 'Add at least one unit with a unit number.' });
+  }
+
+  const files = req.files || [];
+  const created = [];
+
+  try {
+    for (let i = 0; i < units.length; i++) {
+      const unitInfo = units[i];
+      const file = files[i];
+      const file_path = file ? 'server/uploads/' + file.filename : null;
+      const externalUrl = validateExternalUrl(unitInfo.drive_link);
+
+      if (unitInfo.drive_link && !externalUrl) {
+        throw new Error(`Unit ${unitInfo.unit}: external link must be a valid http or https URL.`);
+      }
+      if (!file_path && !externalUrl) {
+        throw new Error(`Unit ${unitInfo.unit}: provide a file or external link.`);
+      }
+
+      const title = unitInfo.unit_title
+        ? `${subject} – Unit ${unitInfo.unit}: ${unitInfo.unit_title}`
+        : `${subject} – Unit ${unitInfo.unit}`;
+
+      const note = await createNoteRecord({
+        title,
+        subject,
+        year: Number(year),
+        branch,
+        type,
+        scope: 'unit',
+        unit: unitInfo.unit,
+        unit_title: unitInfo.unit_title,
+        file_path,
+        drive_link: externalUrl,
+        description: description?.trim() || null
+      });
+      created.push(note);
+    }
+
+    res.status(201).json({
+      success: true,
+      message: `${created.length} unit note(s) uploaded successfully.`,
+      count: created.length,
+      data: created
+    });
+  } catch (err) {
+    req.files?.forEach(removeUploadedFile);
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.put('/notes/:id', requireAdmin, async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid note id.' });
+  }
+
   const { drive_link, description } = req.body;
-  const dbModule = req.app.get('db');
-  const note = dbModule.prepare('SELECT * FROM notes WHERE id = ?').get(req.params.id);
+  const note = await Note.findById(req.params.id);
   if (!note) return res.status(404).json({ error: 'Note not found.' });
+
   const validation = validateNoteMetadata(req.body, true);
   if (validation.error) return res.status(400).json({ error: validation.error });
-  const { title, subject, year, branch, type } = validation.data;
+
+  const { title, subject, year, branch, type, scope, unit, unit_title } = validation.data;
   const externalUrl = drive_link === undefined ? undefined : validateExternalUrl(drive_link);
   if (drive_link !== undefined && drive_link && !externalUrl) {
     return res.status(400).json({ error: 'External link must be a valid http or https URL.' });
   }
 
   try {
-    dbModule.prepare(
-      'UPDATE notes SET title=?, subject=?, year=?, branch=?, type=?, drive_link=?, description=? WHERE id=?'
-    ).run(
-      title || note.title,
-      subject || note.subject,
-      year ? Number(year) : note.year,
-      branch || note.branch,
-      type || note.type,
-      drive_link !== undefined ? externalUrl : note.drive_link,
-      description !== undefined ? description : note.description,
-      req.params.id
-    );
-    const updated = dbModule.prepare('SELECT * FROM notes WHERE id = ?').get(req.params.id);
-    res.json({ success: true, data: updated });
+    if (title !== undefined) note.title = title;
+    if (subject !== undefined) note.subject = subject;
+    if (year !== undefined) note.year = Number(year);
+    if (branch !== undefined) note.branch = branch;
+    if (type !== undefined) note.type = type;
+    if (scope !== undefined) note.scope = scope;
+    if (scope === 'unit') {
+      if (unit !== undefined && unit !== null) note.unit = Number(unit);
+      if (unit_title !== undefined) note.unit_title = unit_title;
+    } else if (scope === 'combined') {
+      note.unit = null;
+      note.unit_title = null;
+    }
+    if (drive_link !== undefined) note.drive_link = externalUrl;
+    if (description !== undefined) note.description = description;
+
+    await note.save();
+    res.json({ success: true, data: toApiDoc(note) });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-// DELETE /api/notes/:id – Admin only
-router.delete('/notes/:id', requireAdmin, (req, res) => {
-  const dbModule = req.app.get('db');
-  const note = dbModule.prepare('SELECT * FROM notes WHERE id = ?').get(req.params.id);
-  if (!note) return res.status(404).json({ error: 'Note not found.' });
-
-  // Remove physical uploaded file if it exists in our uploads folder
-  if (note.file_path && note.file_path.startsWith('server/uploads/')) {
-    const absPath = path.join(__dirname, '..', '..', note.file_path);
-    if (fs.existsSync(absPath)) fs.unlinkSync(absPath);
+router.delete('/notes/:id', requireAdmin, async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid note id.' });
   }
 
-  dbModule.prepare('DELETE FROM notes WHERE id = ?').run(req.params.id);
-  res.json({ success: true, message: 'Note deleted.' });
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).json({ error: 'Note not found.' });
+
+    if (note.file_path && note.file_path.startsWith('server/uploads/')) {
+      const absPath = path.join(__dirname, '..', '..', note.file_path);
+      if (fs.existsSync(absPath)) fs.unlinkSync(absPath);
+    }
+
+    await Note.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Note deleted.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ─── General resources (not tied to a branch or year) ─────────────────────────
-router.get('/resources', (req, res) => {
-  const rows = req.app.get('db').prepare('SELECT * FROM general_resources ORDER BY id DESC').all();
-  res.json({ success: true, data: rows });
+// ─── General resources ──────────────────────────────────────────────────────────
+router.get('/resources', async (req, res) => {
+  try {
+    const rows = await GeneralResource.find().sort({ uploaded_at: -1 });
+    res.json({ success: true, data: rows.map(toApiDoc) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.post('/resources/upload', requireAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'cover_image', maxCount: 1 }]), (req, res) => {
+router.post('/resources/upload', requireAdmin, upload.fields([{ name: 'file', maxCount: 1 }, { name: 'cover_image', maxCount: 1 }]), async (req, res) => {
   const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
   const category = typeof req.body.category === 'string' ? req.body.category.trim() : 'General';
   const description = typeof req.body.description === 'string' ? req.body.description.trim() : null;
@@ -224,82 +373,142 @@ router.post('/resources/upload', requireAdmin, upload.fields([{ name: 'file', ma
     return res.status(400).json({ error: 'Provide a file or an external link.' });
   }
 
-  const db = req.app.get('db');
-  const result = db.prepare('INSERT INTO general_resources (title, category, description, file_path, drive_link, cover_path) VALUES (?, ?, ?, ?, ?, ?)')
-    .run(title, category || 'General', description, filePath, externalUrl, coverPath);
-  res.status(201).json({ success: true, data: db.prepare('SELECT * FROM general_resources WHERE id = ?').get(result.lastInsertRowid) });
+  try {
+    const resource = await GeneralResource.create({
+      title,
+      category: category || 'General',
+      description,
+      file_path: filePath,
+      drive_link: externalUrl,
+      cover_path: coverPath
+    });
+    res.status(201).json({ success: true, data: toApiDoc(resource) });
+  } catch (err) {
+    removeUploadedFile(file);
+    removeUploadedFile(coverImage);
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.delete('/resources/:id', requireAdmin, (req, res) => {
-  const db = req.app.get('db');
-  const resource = db.prepare('SELECT * FROM general_resources WHERE id = ?').get(req.params.id);
-  if (!resource) return res.status(404).json({ error: 'Resource not found.' });
-  if (resource.file_path?.startsWith('server/uploads/')) {
-    const file = path.join(__dirname, '..', '..', resource.file_path);
-    if (fs.existsSync(file)) fs.unlinkSync(file);
+router.delete('/resources/:id', requireAdmin, async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid resource id.' });
   }
-  if (resource.cover_path?.startsWith('server/uploads/')) {
-    const cover = path.join(__dirname, '..', '..', resource.cover_path);
-    if (fs.existsSync(cover)) fs.unlinkSync(cover);
+
+  try {
+    const resource = await GeneralResource.findById(req.params.id);
+    if (!resource) return res.status(404).json({ error: 'Resource not found.' });
+
+    if (resource.file_path?.startsWith('server/uploads/')) {
+      const file = path.join(__dirname, '..', '..', resource.file_path);
+      if (fs.existsSync(file)) fs.unlinkSync(file);
+    }
+    if (resource.cover_path?.startsWith('server/uploads/')) {
+      const cover = path.join(__dirname, '..', '..', resource.cover_path);
+      if (fs.existsSync(cover)) fs.unlinkSync(cover);
+    }
+
+    await GeneralResource.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Resource deleted.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  db.prepare('DELETE FROM general_resources WHERE id = ?').run(resource.id);
-  res.json({ success: true, message: 'Resource deleted.' });
 });
 
-// ─── Feedback / resource requests ────────────────────────────────────────────
-router.post('/feedback', (req, res) => {
+// ─── Feedback ───────────────────────────────────────────────────────────────────
+router.post('/feedback', async (req, res) => {
   const name = typeof req.body.name === 'string' ? req.body.name.trim() : '';
   const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
   if (!name || !message) return res.status(400).json({ error: 'Name and feedback are required.' });
   if (name.length > 80 || message.length > 1000) return res.status(400).json({ error: 'Feedback is too long.' });
-  const result = req.app.get('db').prepare('INSERT INTO feedback (name, message) VALUES (?, ?)').run(name, message);
-  res.status(201).json({ success: true, data: { id: result.lastInsertRowid } });
+
+  try {
+    const item = await Feedback.create({ name, message });
+    res.status(201).json({ success: true, data: { id: String(item._id) } });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.get('/feedback', requireAdmin, (req, res) => {
-  const rows = req.app.get('db').prepare('SELECT * FROM feedback ORDER BY id DESC').all();
-  res.json({ success: true, data: rows });
+router.get('/feedback', requireAdmin, async (req, res) => {
+  try {
+    const rows = await Feedback.find().sort({ created_at: -1 });
+    res.json({ success: true, data: rows.map(toApiDoc) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.delete('/feedback/:id', requireAdmin, (req, res) => {
-  req.app.get('db').prepare('DELETE FROM feedback WHERE id = ?').run(req.params.id);
-  res.json({ success: true, message: 'Feedback deleted.' });
+router.delete('/feedback/:id', requireAdmin, async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid feedback id.' });
+  }
+  try {
+    await Feedback.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Feedback deleted.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ─── ANNOUNCEMENTS Routes ───────────────────────────────────────────────────────
-
-// GET /api/announcements
-router.get('/announcements', (req, res) => {
-  const dbModule = req.app.get('db');
-  const rows = dbModule.prepare('SELECT * FROM announcements WHERE active = 1 ORDER BY id DESC').all();
-  res.json({ success: true, data: rows });
+// ─── ANNOUNCEMENTS ──────────────────────────────────────────────────────────────
+router.get('/announcements', async (req, res) => {
+  try {
+    const rows = await Announcement.find({ active: true }).sort({ created_at: -1 });
+    res.json({ success: true, data: rows.map(toApiDoc) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// POST /api/announcements – admin only
-router.post('/announcements', requireAdmin, (req, res) => {
+router.post('/announcements', requireAdmin, async (req, res) => {
   const { text, icon } = req.body;
-  const dbModule = req.app.get('db');
   if (!text) return res.status(400).json({ error: 'Announcement text is required.' });
-  const result = dbModule.prepare('INSERT INTO announcements (text, icon) VALUES (?, ?)').run(text, icon || '📢');
-  const ann = dbModule.prepare('SELECT * FROM announcements WHERE id = ?').get(result.lastInsertRowid);
-  res.status(201).json({ success: true, data: ann });
+
+  try {
+    const ann = await Announcement.create({ text, icon: icon || '📢' });
+    res.status(201).json({ success: true, data: toApiDoc(ann) });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// DELETE /api/announcements/:id – admin only
-router.delete('/announcements/:id', requireAdmin, (req, res) => {
-  const dbModule = req.app.get('db');
-  dbModule.prepare('UPDATE announcements SET active = 0 WHERE id = ?').run(req.params.id);
-  res.json({ success: true, message: 'Announcement removed.' });
+router.delete('/announcements/:id', requireAdmin, async (req, res) => {
+  if (!isValidObjectId(req.params.id)) {
+    return res.status(400).json({ error: 'Invalid announcement id.' });
+  }
+  try {
+    await Announcement.updateOne({ _id: req.params.id }, { active: false });
+    res.json({ success: true, message: 'Announcement removed.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// ─── STATS Route ────────────────────────────────────────────────────────────────
-router.get('/stats', (req, res) => {
-  const dbModule = req.app.get('db');
-  const totalNotes = dbModule.prepare('SELECT COUNT(*) as c FROM notes').get().c;
-  const byYear    = dbModule.prepare('SELECT year, COUNT(*) as count FROM notes GROUP BY year').all();
-  const byBranch  = dbModule.prepare('SELECT branch, COUNT(*) as count FROM notes GROUP BY branch').all();
-  const byType    = dbModule.prepare('SELECT type, COUNT(*) as count FROM notes GROUP BY type').all();
-  res.json({ success: true, data: { totalNotes, byYear, byBranch, byType } });
+// ─── STATS ──────────────────────────────────────────────────────────────────────
+router.get('/stats', async (req, res) => {
+  try {
+    const [totalNotes, byYear, byBranch, byType, byScope] = await Promise.all([
+      Note.countDocuments(),
+      Note.aggregate([{ $group: { _id: '$year', count: { $sum: 1 } } }, { $sort: { _id: 1 } }]),
+      Note.aggregate([{ $group: { _id: '$branch', count: { $sum: 1 } } }, { $sort: { _id: 1 } }]),
+      Note.aggregate([{ $group: { _id: '$type', count: { $sum: 1 } } }, { $sort: { _id: 1 } }]),
+      Note.aggregate([{ $group: { _id: '$scope', count: { $sum: 1 } } }, { $sort: { _id: 1 } }])
+    ]);
+
+    res.json({
+      success: true,
+      data: {
+        totalNotes,
+        byYear: byYear.map(r => ({ year: r._id, count: r.count })),
+        byBranch: byBranch.map(r => ({ branch: r._id, count: r.count })),
+        byType: byType.map(r => ({ type: r._id, count: r.count })),
+        byScope: byScope.map(r => ({ scope: r._id || 'combined', count: r.count }))
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 router.use((err, req, res, next) => {

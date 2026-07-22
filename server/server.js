@@ -1,11 +1,16 @@
 // Main Express application
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
+
 const express = require('express');
 const session = require('express-session');
+const MongoStore = require('connect-mongo');
 const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
+const mongoose = require('mongoose');
 
 const { initDb } = require('./db');
+const { Note, GeneralResource } = require('./models');
 const apiRoutes = require('./routes/api');
 const authRoutes = require('./routes/auth');
 
@@ -13,6 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const isProduction = process.env.NODE_ENV === 'production';
 const sessionSecret = process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex');
+const mongoUri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/recb_education';
 
 if (!process.env.SESSION_SECRET) {
   console.warn('SESSION_SECRET is not set. Sessions will end whenever the server restarts.');
@@ -21,7 +27,6 @@ if (!process.env.SESSION_SECRET) {
 app.disable('x-powered-by');
 if (isProduction) app.set('trust proxy', 1);
 
-// ─── Middleware ─────────────────────────────────────────────────────────────────
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,6 +34,11 @@ app.use(session({
   secret: sessionSecret,
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({
+    mongoUrl: mongoUri,
+    collectionName: 'sessions',
+    ttl: 24 * 60 * 60
+  }),
   cookie: {
     httpOnly: true,
     sameSite: 'lax',
@@ -37,62 +47,60 @@ app.use(session({
   }
 }));
 
-// ─── Static Files ───────────────────────────────────────────────────────────────
-// Serve the public folder (our frontend)
 app.use(express.static(path.join(__dirname, '..', 'public')));
-
-// Serve original Notes folder (for existing zip/pdf downloads)
 app.use('/Notes', express.static(path.join(__dirname, '..', 'Notes')));
-
-// Serve uploaded files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// Serve images
 app.use('/image', express.static(path.join(__dirname, '..', 'image')));
 
-// ─── API Routes ─────────────────────────────────────────────────────────────────
 app.use('/api', apiRoutes);
 app.use('/api/auth', authRoutes);
 
-// ─── Download route for files ───────────────────────────────────────────────────
-app.get('/download/:id', (req, res) => {
-  const dbModule = app.get('db');
-  const note = dbModule.prepare('SELECT * FROM notes WHERE id = ?').get(req.params.id);
-  if (!note) return res.status(404).send('File not found.');
-
-  if (note.drive_link) {
-    return res.redirect(note.drive_link);
+app.get('/download/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).send('File not found.');
   }
 
-  if (note.file_path) {
-    const absPath = path.join(__dirname, '..', note.file_path);
-    if (fs.existsSync(absPath)) {
-      return res.download(absPath);
+  try {
+    const note = await Note.findById(req.params.id);
+    if (!note) return res.status(404).send('File not found.');
+
+    if (note.drive_link) return res.redirect(note.drive_link);
+
+    if (note.file_path) {
+      const absPath = path.join(__dirname, '..', note.file_path);
+      if (fs.existsSync(absPath)) return res.download(absPath);
     }
+
+    res.status(404).send('File not found.');
+  } catch (_) {
+    res.status(500).send('Download failed.');
+  }
+});
+
+app.get('/resource-download/:id', async (req, res) => {
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.status(404).send('Resource not found.');
   }
 
-  res.status(404).send('File not found.');
+  try {
+    const resource = await GeneralResource.findById(req.params.id);
+    if (!resource) return res.status(404).send('Resource not found.');
+    if (resource.drive_link) return res.redirect(resource.drive_link);
+
+    const file = resource.file_path && path.join(__dirname, '..', resource.file_path);
+    if (file && fs.existsSync(file)) return res.download(file);
+    return res.status(404).send('File not found.');
+  } catch (_) {
+    res.status(500).send('Download failed.');
+  }
 });
 
-app.get('/resource-download/:id', (req, res) => {
-  const resource = app.get('db').prepare('SELECT * FROM general_resources WHERE id = ?').get(req.params.id);
-  if (!resource) return res.status(404).send('Resource not found.');
-  if (resource.drive_link) return res.redirect(resource.drive_link);
-  const file = resource.file_path && path.join(__dirname, '..', resource.file_path);
-  if (file && fs.existsSync(file)) return res.download(file);
-  return res.status(404).send('File not found.');
-});
-
-// ─── Fallback: serve index.html for SPA-like routing ───────────────────────────
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// ─── Start server ─────────────────────────────────────────────────────────────
 async function startServer() {
-  console.log('🔄 Initializing database...');
-  const dbModule = await initDb();
-  app.set('db', dbModule);
+  await initDb();
 
   const server = app.listen(PORT, () => {
     console.log('');
@@ -118,6 +126,6 @@ async function startServer() {
 }
 
 startServer().catch(err => {
-  console.error('❌ Failed to start server:', err);
+  console.error('❌ Failed to start server:', err.message);
   process.exit(1);
 });

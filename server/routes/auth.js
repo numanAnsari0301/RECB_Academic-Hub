@@ -2,32 +2,33 @@
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
+const { AdminUser } = require('../models');
 
 function validUsername(username) {
   return typeof username === 'string' && /^[A-Za-z0-9_.-]{3,50}$/.test(username);
 }
 
-// POST /api/auth/login
-router.post('/login', (req, res) => {
+router.post('/login', async (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
     return res.status(400).json({ error: 'Username and password required.' });
   }
 
-  const dbModule = req.app.get('db');
-  const user = dbModule.prepare('SELECT * FROM admin_users WHERE username = ?').get(username);
+  try {
+    const user = await AdminUser.findOne({ username });
+    if (!user || !bcrypt.compareSync(password, user.password_hash)) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
 
-  if (!user || !bcrypt.compareSync(password, user.password_hash)) {
-    return res.status(401).json({ error: 'Invalid credentials.' });
+    req.session.isAdmin = true;
+    req.session.username = user.username;
+    res.json({ success: true, message: 'Logged in successfully.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  req.session.isAdmin = true;
-  req.session.username = user.username;
-  res.json({ success: true, message: 'Logged in successfully.' });
 });
 
-// PUT /api/auth/credentials - change the logged-in administrator credentials
-router.put('/credentials', (req, res) => {
+router.put('/credentials', async (req, res) => {
   if (!req.session?.isAdmin || !req.session.username) {
     return res.status(401).json({ error: 'Unauthorized. Admin login required.' });
   }
@@ -40,28 +41,32 @@ router.put('/credentials', (req, res) => {
     return res.status(400).json({ error: 'New password must be at least 10 characters.' });
   }
 
-  const db = req.app.get('db');
-  const user = db.prepare('SELECT * FROM admin_users WHERE username = ?').get(req.session.username);
-  if (!user || !bcrypt.compareSync(currentPassword, user.password_hash)) {
-    return res.status(401).json({ error: 'Current password is incorrect.' });
-  }
-  const usernameTaken = db.prepare('SELECT id FROM admin_users WHERE username = ? AND id <> ?').get(username, user.id);
-  if (usernameTaken) return res.status(409).json({ error: 'That username is already in use.' });
+  try {
+    const user = await AdminUser.findOne({ username: req.session.username });
+    if (!user || !bcrypt.compareSync(currentPassword, user.password_hash)) {
+      return res.status(401).json({ error: 'Current password is incorrect.' });
+    }
 
-  db.prepare('UPDATE admin_users SET username = ?, password_hash = ? WHERE id = ?')
-    .run(username, bcrypt.hashSync(newPassword, 12), user.id);
-  req.session.username = username;
-  res.json({ success: true, message: 'Administrator credentials updated.' });
+    const usernameTaken = await AdminUser.findOne({ username, _id: { $ne: user._id } }).select('_id');
+    if (usernameTaken) return res.status(409).json({ error: 'That username is already in use.' });
+
+    user.username = username;
+    user.password_hash = bcrypt.hashSync(newPassword, 12);
+    await user.save();
+
+    req.session.username = username;
+    res.json({ success: true, message: 'Administrator credentials updated.' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
-// POST /api/auth/logout
 router.post('/logout', (req, res) => {
   req.session.destroy(() => {
     res.json({ success: true, message: 'Logged out.' });
   });
 });
 
-// GET /api/auth/status
 router.get('/status', (req, res) => {
   res.json({
     isAdmin: !!(req.session && req.session.isAdmin),

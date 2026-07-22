@@ -97,13 +97,44 @@
     <div class="admin-section" id="section-upload">
       <h2 style="margin-bottom:24px;font-size:1.5rem;">⬆ Upload New Note</h2>
 
+      <div class="upload-mode-tabs" style="display:flex;gap:10px;margin-bottom:24px;flex-wrap:wrap;">
+        <button type="button" class="btn btn-primary upload-mode-btn active" data-mode="single">📄 Single Note</button>
+        <button type="button" class="btn btn-outline upload-mode-btn" data-mode="units">📚 Multiple Units (Batch)</button>
+      </div>
+
+      <!-- Single note upload -->
       <form class="upload-form" id="upload-form" enctype="multipart/form-data">
         <div class="form-title">📄 Note Details</div>
 
         <div class="form-row">
           <div class="form-group full">
+            <label>Note format *</label>
+            <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;">
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="scope" value="combined" checked> Combined (full subject notes)
+              </label>
+              <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                <input type="radio" name="scope" value="unit"> Unit-wise (single unit)
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row unit-fields" id="single-unit-fields" style="display:none;">
+          <div class="form-group">
+            <label for="unit">Unit number *</label>
+            <input type="number" id="unit" name="unit" min="1" max="20" placeholder="e.g. 3">
+          </div>
+          <div class="form-group">
+            <label for="unit_title">Unit title (optional)</label>
+            <input type="text" id="unit_title" name="unit_title" placeholder="e.g. Normalization">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
             <label for="title">Title *</label>
-            <input type="text" id="title" name="title" placeholder="e.g. Mathematics-1 Chapter Notes" required>
+            <input type="text" id="title" name="title" placeholder="e.g. Mathematics-1 Complete Notes" required>
           </div>
         </div>
 
@@ -155,7 +186,6 @@
           </div>
         </div>
 
-        <!-- File Upload -->
         <div class="form-group full">
           <label>Upload File (PDF, ZIP, DOCX – max 100MB)</label>
           <div class="drop-zone" id="drop-zone">
@@ -182,6 +212,69 @@
           </button>
         </div>
       </form>
+
+      <!-- Batch unit upload -->
+      <form class="upload-form" id="units-upload-form" enctype="multipart/form-data" style="display:none;">
+        <div class="form-title">📚 Upload Multiple Units at Once</div>
+        <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:18px;">
+          Add each unit with its file or Drive link. All units share the same subject, year, branch and type.
+        </p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="units-subject">Subject *</label>
+            <input type="text" id="units-subject" name="subject" placeholder="e.g. DBMS" required>
+          </div>
+          <div class="form-group">
+            <label for="units-type">Type *</label>
+            <select id="units-type" name="type" required>
+              <option value="Notes">📖 Notes</option>
+              <option value="Syllabus">📋 Syllabus</option>
+              <option value="CT_Paper">📝 CT Paper</option>
+              <option value="Quantum">⚡ Quantum</option>
+              <option value="PYQ">Previous Year Paper (PYQ)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="units-year">Year *</label>
+            <select id="units-year" name="year" required>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="units-branch">Branch *</label>
+            <select id="units-branch" name="branch" required>
+              <option value="IT">IT</option>
+              <option value="CE">CE</option>
+              <option value="EE">EE</option>
+              <option value="ME">ME</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group full">
+            <label for="units-description">Description (optional, applies to all units)</label>
+            <textarea id="units-description" name="description"></textarea>
+          </div>
+        </div>
+
+        <div id="unit-rows-container"></div>
+
+        <div style="display:flex;gap:12px;margin:16px 0;flex-wrap:wrap;">
+          <button type="button" class="btn btn-outline" id="add-unit-row-btn">+ Add Unit</button>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="units-upload-submit-btn" style="width:100%;justify-content:center;padding:13px;">
+          ⬆ Upload All Units
+        </button>
+      </form>
     </div>
 
     <!-- ── Manage Notes Section ── -->
@@ -203,12 +296,14 @@
                 <th>Year</th>
                 <th>Branch</th>
                 <th>Type</th>
+                <th>Scope</th>
+                <th>Unit</th>
                 <th>File/Link</th>
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody id="notes-tbody">
-              <tr><td colspan="8" style="text-align:center;padding:32px;color:var(--text-muted);">Loading...</td></tr>
+              <tr><td colspan="10" style="text-align:center;padding:32px;color:var(--text-muted);">Loading...</td></tr>
             </tbody>
           </table>
         </div>
@@ -291,6 +386,19 @@
       <div class="form-row">
         <div class="form-group"><label for="edit-year">Year</label><select id="edit-year" required><option value="1">1st Year</option><option value="2">2nd Year</option><option value="3">3rd Year</option><option value="4">4th Year</option></select></div>
         <div class="form-group"><label for="edit-branch">Branch</label><select id="edit-branch" required><option value="IT">IT</option><option value="CE">CE</option><option value="EE">EE</option><option value="ME">ME</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group full">
+          <label>Format</label>
+          <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="radio" name="edit-scope" id="edit-scope-combined" value="combined"> Combined</label>
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;"><input type="radio" name="edit-scope" id="edit-scope-unit" value="unit"> Unit-wise</label>
+          </div>
+        </div>
+      </div>
+      <div class="form-row" id="edit-unit-fields">
+        <div class="form-group"><label for="edit-unit">Unit number</label><input type="number" id="edit-unit" min="1" max="20"></div>
+        <div class="form-group"><label for="edit-unit-title">Unit title</label><input type="text" id="edit-unit-title"></div>
       </div>
       <div class="form-group full"><label for="edit-drive-link">External/Drive link (optional)</label><input type="url" id="edit-drive-link" placeholder="https://drive.google.com/..."></div>
       <div class="form-group full"><label for="edit-description">Description</label><textarea id="edit-description"></textarea></div>
